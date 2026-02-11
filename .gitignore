@@ -1,0 +1,46 @@
+# BMAD Output (geçici dosyalar)
+_bmad-output/
+
+# IDE ayarları
+.cursor/
+.vscode/
+.idea/
+
+# AI Asistan ayarları
+.claude/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# BMAD files - KEEP THESE (NOT ignored)
+# _bmad/ - konfigürasyon ve workflow dosyaları (GIT'TE TUTULACAK)
+# docs/bmad/ - dokümantasyon (GIT'TE TUTULACAK)
+# README-BMAD.md - ana README (GIT'TE TUTULACAK)
