@@ -1,0 +1,127 @@
+# generated: 2026-02-11
+# project: Cmpe492
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: /Users/mcan/Boun/Cmpe492/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-02-11
+project: Cmpe492
+project_key: NOKEY
+tracking_system: file-system
+story_location: /Users/mcan/Boun/Cmpe492/_bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Project Foundation & Instant Task Capture
+  epic-1: in-progress
+  1-1-initialize-xcode-project-with-core-data: in-progress
+  1-2-design-core-data-task-entity-schema: backlog
+  1-3-create-task-model-and-mvvm-structure: backlog
+  1-4-build-basic-today-view-with-task-list: backlog
+  1-5-implement-persistent-input-field-for-task-capture: backlog
+  1-6-enable-task-creation-via-text-input: backlog
+  1-7-display-tasks-in-list-with-basic-styling: backlog
+  1-8-implement-immediate-data-persistence: backlog
+  1-9-ensure-data-persistence-across-app-launches: backlog
+  1-10-implement-rapid-succession-task-capture: backlog
+  1-11-optimize-task-creation-performance: backlog
+  1-12-handle-task-creation-error-cases: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Three-View Organization System
+  epic-2: backlog
+  2-1-implement-three-view-tab-navigation: backlog
+  2-2-build-inbox-view-for-timeless-tasks: backlog
+  2-3-build-upcoming-view-for-future-tasks: backlog
+  2-4-filter-today-view-to-show-only-todays-tasks: backlog
+  2-5-maintain-persistent-input-field-across-all-views: backlog
+  2-6-implement-horizontal-swipe-navigation-between-views: backlog
+  2-7-show-empty-state-messages-for-each-view: backlog
+  2-8-ensure-single-screen-simplicity-no-deep-navigation: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Drag-Based Time Manipulation
+  epic-3: backlog
+  3-1-implement-drag-to-reorder-within-a-single-view: backlog
+  3-2-implement-drag-between-views-inbox-to-today: backlog
+  3-3-implement-drag-between-views-today-to-upcoming: backlog
+  3-4-implement-drag-to-inbox-unscheduling: backlog
+  3-5-implement-visual-feedback-during-drag-operations: backlog
+  3-6-implement-date-picker-for-specific-future-dates: backlog
+  3-7-implement-quick-actions-move-to-today-tomorrow: backlog
+  3-8-enforce-no-automatic-rollover-logic: backlog
+  3-9-handle-date-transition-at-midnight: backlog
+  3-10-optimize-drag-performance-for-60fps: backlog
+  3-11-implement-undo-for-drag-operations: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Task State Management & Completion
+  epic-4: backlog
+  4-1-implement-three-task-states-model-layer: backlog
+  4-2-implement-tap-to-change-state-interaction: backlog
+  4-3-implement-visual-differentiation-for-task-states: backlog
+  4-4-keep-completed-tasks-visible-in-today-view: backlog
+  4-5-track-completion-timestamps: backlog
+  4-6-implement-state-sorting-logic: backlog
+  4-7-display-completion-count-in-today-view: backlog
+  4-8-ensure-state-changes-work-across-all-views: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Task Deletion
+  epic-5: backlog
+  5-1-implement-swipe-to-delete-gesture: backlog
+  5-2-implement-full-swipe-to-delete: backlog
+  5-3-handle-delete-operation-errors: backlog
+  5-4-ensure-delete-works-consistently-across-all-views: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Simple Cumulative Analytics
+  epic-6: backlog
+  6-1-create-analytics-view-structure: backlog
+  6-2-display-tasks-completed-today: backlog
+  6-3-display-tasks-completed-this-week: backlog
+  6-4-display-tasks-completed-this-month: backlog
+  6-5-display-simple-completion-trends: backlog
+  6-6-implement-efficient-analytics-queries: backlog
+  6-7-maintain-historical-completion-data: backlog
+  6-8-handle-edge-cases-in-analytics: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: Data Export Capability
+  epic-7: backlog
+  7-1-implement-json-export-functionality: backlog
+  7-2-add-export-button-to-settings-or-menu: backlog
+  7-3-integrate-with-ios-share-sheet: backlog
+  7-4-handle-export-errors-gracefully: backlog
+  7-5-ensure-export-data-completeness-and-privacy: backlog
+  7-6-test-export-with-various-data-sizes: backlog
+  7-7-document-json-export-format: backlog
+  epic-7-retrospective: optional

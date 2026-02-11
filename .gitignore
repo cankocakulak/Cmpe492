@@ -1,5 +1,5 @@
 # BMAD Output (geçici dosyalar)
-_bmad-output/
+#_bmad-output/
 
 # IDE ayarları
 .cursor/
