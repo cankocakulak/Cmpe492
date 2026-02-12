@@ -26,8 +26,8 @@
 
 /* Begin PBXFileReference section */
 		0D2E9736D139494B9344C46D /* TaskModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskModelTests.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B5C /* ContentViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewTests.swift; sourceTree = "<group>"; };
 		4D518AD1E9EC4EDE9F665ECE /* TaskEntitySchemaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEntitySchemaTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* ContentViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewTests.swift; sourceTree = "<group>"; };
 		B7D5C30BE8D04494AFC5CA00 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
 		C89EA0347C634F53B4E83A82 /* TaskViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModelTests.swift; sourceTree = "<group>"; };
 		CA5FD29B2F3DB9E500363BAE /* Cmpe492.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cmpe492.app; sourceTree = BUILT_PRODUCTS_DIR; };

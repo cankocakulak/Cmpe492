@@ -11,6 +11,11 @@ import CoreData
 struct TaskRow: View {
     let task: Task
     var onTap: () -> Void = {}
+    var isDragging: Bool = false
+    var onMoveToday: (() -> Void)?
+    var onMoveTomorrow: (() -> Void)?
+    var onDelete: (() -> Void)?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Text(task.wrappedText)
@@ -20,9 +25,38 @@ struct TaskRow: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .frame(minHeight: 44, alignment: .leading)
+            .opacity(isDragging ? 0.3 : 1.0)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.4), value: isDragging)
             .contentShape(Rectangle())
             .onTapGesture {
                 onTap()
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                if let onMoveToday {
+                    Button {
+                        onMoveToday()
+                    } label: {
+                        Label("Today", systemImage: "sun.max")
+                    }
+                    .tint(.blue)
+                }
+
+                if let onMoveTomorrow {
+                    Button {
+                        onMoveTomorrow()
+                    } label: {
+                        Label("Tomorrow", systemImage: "calendar")
+                    }
+                    .tint(.green)
+                }
+
+                if let onDelete {
+                    Button(role: .destructive) {
+                        onDelete()
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
             }
     }
 }

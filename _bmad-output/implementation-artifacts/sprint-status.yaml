@@ -69,18 +69,18 @@ development_status:
   epic-2-retrospective: optional
 
   # Epic 3: Drag-Based Time Manipulation
-  epic-3: backlog
-  3-1-implement-drag-to-reorder-within-a-single-view: backlog
-  3-2-implement-drag-between-views-inbox-to-today: backlog
-  3-3-implement-drag-between-views-today-to-upcoming: backlog
-  3-4-implement-drag-to-inbox-unscheduling: backlog
-  3-5-implement-visual-feedback-during-drag-operations: backlog
-  3-6-implement-date-picker-for-specific-future-dates: backlog
-  3-7-implement-quick-actions-move-to-today-tomorrow: backlog
-  3-8-enforce-no-automatic-rollover-logic: backlog
-  3-9-handle-date-transition-at-midnight: backlog
-  3-10-optimize-drag-performance-for-60fps: backlog
-  3-11-implement-undo-for-drag-operations: backlog
+  epic-3: done
+  3-1-implement-drag-to-reorder-within-a-single-view: done
+  3-2-implement-drag-between-views-inbox-to-today: done
+  3-3-implement-drag-between-views-today-to-upcoming: done
+  3-4-implement-drag-to-inbox-unscheduling: done
+  3-5-implement-visual-feedback-during-drag-operations: done
+  3-6-implement-date-picker-for-specific-future-dates: done
+  3-7-implement-quick-actions-move-to-today-tomorrow: done
+  3-8-enforce-no-automatic-rollover-logic: done
+  3-9-handle-date-transition-at-midnight: done
+  3-10-optimize-drag-performance-for-60fps: done
+  3-11-implement-undo-for-drag-operations: done
   epic-3-retrospective: optional
 
   # Epic 4: Task State Management & Completion
