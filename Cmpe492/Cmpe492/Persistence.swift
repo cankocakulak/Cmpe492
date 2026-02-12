@@ -14,11 +14,22 @@ struct PersistenceController {
     static let preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
-        // NOTE: This preview code uses placeholder 'Item' entity from Xcode template
-        // Will be replaced with actual Task entity in Story 1.2
-        for _ in 0..<10 {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+        // Create sample Task entities for SwiftUI previews
+        for i in 0..<10 {
+            let newTask = Task(context: viewContext)
+            newTask.id = UUID()
+            newTask.text = "Sample Task \(i + 1)"
+            newTask.state = "notStarted"
+            newTask.createdAt = Date()
+            newTask.updatedAt = Date()
+            newTask.sortOrder = Int32(i)
+            // Some tasks scheduled for today, some for upcoming, some in inbox
+            if i < 3 {
+                newTask.scheduledDate = Calendar.current.startOfDay(for: Date())
+            } else if i < 6 {
+                newTask.scheduledDate = Calendar.current.date(byAdding: .day, value: 1, to: Date())
+            }
+            // Leave remaining tasks with nil scheduledDate (Inbox)
         }
         do {
             try viewContext.save()

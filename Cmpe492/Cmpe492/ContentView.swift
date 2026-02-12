@@ -12,61 +12,71 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Task.createdAt, ascending: true)],
         animation: .default)
-    private var items: FetchedResults<Item>
+    private var tasks: FetchedResults<Task>
 
     var body: some View {
         NavigationView {
             List {
-                ForEach(items) { item in
+                ForEach(tasks) { task in
                     NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
+                        VStack(alignment: .leading) {
+                            Text(task.text ?? "Untitled")
+                                .font(.headline)
+                            Text("Created: \(task.createdAt!, formatter: dateFormatter)")
+                                .font(.caption)
+                            Text("State: \(task.state ?? "unknown")")
+                                .font(.caption)
+                        }
                     } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+                        Text(task.text ?? "Untitled")
                     }
                 }
-                .onDelete(perform: deleteItems)
+                .onDelete(perform: deleteTasks)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
                 ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    Button(action: addTask) {
+                        Label("Add Task", systemImage: "plus")
                     }
                 }
             }
-            Text("Select an item")
+            Text("Select a task")
         }
     }
 
-    private func addItem() {
+    private func addTask() {
         withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+            let newTask = Task(context: viewContext)
+            newTask.id = UUID()
+            newTask.text = "New Task"
+            newTask.state = "notStarted"
+            newTask.createdAt = Date()
+            newTask.updatedAt = Date()
+            newTask.sortOrder = Int32(tasks.count)
 
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                // Core Data save error - log and display to user
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
+    private func deleteTasks(offsets: IndexSet) {
         withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
+            offsets.map { tasks[$0] }.forEach(viewContext.delete)
 
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                // Core Data deletion error - log and display to user
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
@@ -74,7 +84,7 @@ struct ContentView: View {
     }
 }
 
-private let itemFormatter: DateFormatter = {
+private let dateFormatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateStyle = .short
     formatter.timeStyle = .medium
