@@ -36,7 +36,16 @@ struct TaskRow: View {
             .onTapGesture {
                 onTap()
             }
-            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                if let onDelete {
+                    Button(role: .destructive) {
+                        onDelete()
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
+            }
+            .swipeActions(edge: .leading, allowsFullSwipe: false) {
                 if let onMoveToday {
                     Button {
                         onMoveToday()
@@ -53,14 +62,6 @@ struct TaskRow: View {
                         Label("Tomorrow", systemImage: "calendar")
                     }
                     .tint(.green)
-                }
-
-                if let onDelete {
-                    Button(role: .destructive) {
-                        onDelete()
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
                 }
             }
     }

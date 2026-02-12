@@ -96,23 +96,23 @@ development_status:
   epic-4-retrospective: optional
 
   # Epic 5: Task Deletion
-  epic-5: backlog
-  5-1-implement-swipe-to-delete-gesture: backlog
-  5-2-implement-full-swipe-to-delete: backlog
-  5-3-handle-delete-operation-errors: backlog
-  5-4-ensure-delete-works-consistently-across-all-views: backlog
+  epic-5: in-progress
+  5-1-implement-swipe-to-delete-gesture: done
+  5-2-implement-full-swipe-to-delete: done
+  5-3-handle-delete-operation-errors: done
+  5-4-ensure-delete-works-consistently-across-all-views: done
   epic-5-retrospective: optional
 
   # Epic 6: Simple Cumulative Analytics
-  epic-6: backlog
-  6-1-create-analytics-view-structure: backlog
-  6-2-display-tasks-completed-today: backlog
-  6-3-display-tasks-completed-this-week: backlog
-  6-4-display-tasks-completed-this-month: backlog
-  6-5-display-simple-completion-trends: backlog
-  6-6-implement-efficient-analytics-queries: backlog
-  6-7-maintain-historical-completion-data: backlog
-  6-8-handle-edge-cases-in-analytics: backlog
+  epic-6: in-progress
+  6-1-create-analytics-view-structure: done
+  6-2-display-tasks-completed-today: done
+  6-3-display-tasks-completed-this-week: done
+  6-4-display-tasks-completed-this-month: done
+  6-5-display-simple-completion-trends: done
+  6-6-implement-efficient-analytics-queries: done
+  6-7-maintain-historical-completion-data: done
+  6-8-handle-edge-cases-in-analytics: done
   epic-6-retrospective: optional
 
   # Epic 7: Data Export Capability

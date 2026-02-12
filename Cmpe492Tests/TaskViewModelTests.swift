@@ -91,6 +91,71 @@ final class TaskViewModelTests: XCTestCase {
         }
     }
 
+    func testDeleteTaskRemovesFromContext() throws {
+        let task = Task(context: context)
+        task.id = UUID()
+        task.text = "Delete Me"
+        task.state = TaskState.notStarted.rawValue
+        task.createdAt = Date()
+        task.updatedAt = task.createdAt
+        task.completedAt = nil
+        task.scheduledDate = nil
+        task.sortOrder = 0
+
+        let taskID = task.id!
+        try context.save()
+
+        let viewModel = TaskViewModel(context: context)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        XCTAssertEqual(viewModel.tasks.count, 1)
+
+        viewModel.deleteTask(task)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        XCTAssertEqual(viewModel.tasks.count, 0)
+
+        let fetch: NSFetchRequest<Task> = Task.fetchRequest()
+        fetch.predicate = NSPredicate(format: "id == %@", taskID as CVarArg)
+        let deleted = try context.fetch(fetch)
+        XCTAssertTrue(deleted.isEmpty)
+    }
+
+    func testDeleteTaskFailureRollsBackAndShowsError() throws {
+        let baseTask = Task(context: context)
+        baseTask.id = UUID()
+        baseTask.text = "Cannot Delete"
+        baseTask.state = TaskState.notStarted.rawValue
+        baseTask.createdAt = Date()
+        baseTask.updatedAt = baseTask.createdAt
+        baseTask.completedAt = nil
+        baseTask.scheduledDate = nil
+        baseTask.sortOrder = 0
+        try context.save()
+
+        let failingContext = FailingSaveContext(concurrencyType: .mainQueueConcurrencyType)
+        failingContext.persistentStoreCoordinator = controller.container.persistentStoreCoordinator
+
+        let fetch: NSFetchRequest<Task> = Task.fetchRequest()
+        fetch.predicate = NSPredicate(format: "id == %@", baseTask.id! as CVarArg)
+        guard let failingTask = try failingContext.fetch(fetch).first else {
+            XCTFail("Expected task in failing context")
+            return
+        }
+
+        let viewModel = TaskViewModel(context: failingContext)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        viewModel.deleteTask(failingTask)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        XCTAssertTrue(viewModel.showError)
+        XCTAssertEqual(viewModel.errorMessage, "Unable to delete task. Please try again.")
+        XCTAssertEqual(viewModel.tasks.count, 1)
+
+        let refreshed = TaskViewModel(context: context)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        XCTAssertEqual(refreshed.tasks.count, 1)
+    }
+
     func testInboxFilterReturnsOnlyUnscheduledTasks() throws {
         let inboxTaskId = UUID()
         let scheduledTaskId = UUID()

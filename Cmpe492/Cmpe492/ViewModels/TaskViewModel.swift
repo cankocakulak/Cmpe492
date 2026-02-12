@@ -125,7 +125,9 @@ final class TaskViewModel: NSObject, ObservableObject {
             try context.save()
         } catch {
             logger.error("Delete failed: \(error.localizedDescription)")
-            handleSaveFailure(originalText: nil)
+            context.rollback()
+            context.processPendingChanges()
+            handleDeleteFailure(error: error)
         }
     }
 
@@ -523,6 +525,14 @@ final class TaskViewModel: NSObject, ObservableObject {
         showError = true
         if let originalText {
             restoreInputText = originalText
+        }
+    }
+
+    private func handleDeleteFailure(error: Error? = nil) {
+        errorMessage = "Unable to delete task. Please try again."
+        showError = true
+        if let error {
+            logger.error("Delete rollback applied: \(error.localizedDescription)")
         }
     }
 }

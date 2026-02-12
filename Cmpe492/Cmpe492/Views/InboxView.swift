@@ -55,7 +55,7 @@ struct InboxView: View {
                                 isDragging: dragCoordinator.draggingTaskID != nil && dragCoordinator.draggingTaskID == task.id,
                                 onMoveToday: { quickSchedule(task, date: Date(), fromIndex: index, targetView: .today) },
                                 onMoveTomorrow: { quickSchedule(task, date: viewModel.tomorrowStartDate, fromIndex: index, targetView: .upcoming) },
-                                onDelete: { performQuickAction { viewModel.deleteTask(task) } }
+                                onDelete: { performDeleteAction { viewModel.deleteTask(task) } }
                             )
                             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -211,11 +211,22 @@ struct InboxView: View {
         if reduceMotion {
             action()
         } else {
-            withAnimation(.easeInOut(duration: 0.25)) {
+            withAnimation(.easeInOut(duration: 0.2)) {
                 action()
             }
         }
         impact(.light)
+    }
+
+    private func performDeleteAction(_ action: @escaping () -> Void) {
+        if reduceMotion {
+            action()
+        } else {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                action()
+            }
+        }
+        impact(.medium)
     }
 
     private func scheduleTask(for date: Date?) {

@@ -14,6 +14,7 @@ struct TabBarDropDelegate: DropDelegate {
     let onSwitchTab: (MainTab) -> Void
     let hoverDelay: TimeInterval
     let targetTabs: [MainTab]
+    let tabOrder: [MainTab]
 
     func dropEntered(info: DropInfo) {
         updateHover(with: info)
@@ -59,14 +60,10 @@ struct TabBarDropDelegate: DropDelegate {
     }
 
     private func tabForLocation(_ location: CGPoint) -> MainTab? {
-        guard width > 0 else { return nil }
-        let tabWidth = width / 3
+        guard width > 0, !tabOrder.isEmpty else { return nil }
+        let tabWidth = width / CGFloat(tabOrder.count)
         let index = Int(location.x / tabWidth)
-        switch index {
-        case 0: return .inbox
-        case 1: return .today
-        case 2: return .upcoming
-        default: return nil
-        }
+        guard index >= 0, index < tabOrder.count else { return nil }
+        return tabOrder[index]
     }
 }

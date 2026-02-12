@@ -37,6 +37,8 @@ final class DragCoordinator: ObservableObject {
             return [.inbox, .upcoming]
         case .upcoming:
             return [.inbox]
+        case .analytics:
+            return []
         case .none:
             return []
         }

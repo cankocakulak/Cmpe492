@@ -13,10 +13,12 @@ final class ContentViewTests: XCTestCase {
         XCTAssertEqual(MainTab.inbox.title, "Inbox")
         XCTAssertEqual(MainTab.today.title, "Today")
         XCTAssertEqual(MainTab.upcoming.title, "Upcoming")
+        XCTAssertEqual(MainTab.analytics.title, "Analytics")
 
         XCTAssertEqual(MainTab.inbox.systemImage, "tray")
         XCTAssertEqual(MainTab.today.systemImage, "sun.max")
         XCTAssertEqual(MainTab.upcoming.systemImage, "calendar")
+        XCTAssertEqual(MainTab.analytics.systemImage, "chart.bar")
     }
 
     func testContentViewDefaultTabIsToday() throws {

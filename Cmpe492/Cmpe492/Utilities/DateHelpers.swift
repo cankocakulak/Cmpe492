@@ -31,4 +31,23 @@ enum DateHelpers {
         }
         return monthDayFormatter.string(from: date)
     }
+
+    static func dayInterval(for date: Date, calendar: Calendar = .current) -> DateInterval {
+        let start = calendar.startOfDay(for: date)
+        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start
+        return DateInterval(start: start, end: end)
+    }
+
+    static func weekInterval(for date: Date, calendar: Calendar = .current) -> DateInterval {
+        calendar.dateInterval(of: .weekOfYear, for: date) ?? dayInterval(for: date, calendar: calendar)
+    }
+
+    static func monthInterval(for date: Date, calendar: Calendar = .current) -> DateInterval {
+        calendar.dateInterval(of: .month, for: date) ?? dayInterval(for: date, calendar: calendar)
+    }
+
+    static func previousMonthInterval(for date: Date, calendar: Calendar = .current) -> DateInterval? {
+        guard let previous = calendar.date(byAdding: .month, value: -1, to: date) else { return nil }
+        return calendar.dateInterval(of: .month, for: previous)
+    }
 }

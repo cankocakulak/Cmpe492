@@ -14,6 +14,9 @@ enum MainTab: Hashable {
     case inbox
     case today
     case upcoming
+    case analytics
+
+    static let ordered: [MainTab] = [.inbox, .today, .upcoming, .analytics]
 
     var title: String {
         switch self {
@@ -23,6 +26,8 @@ enum MainTab: Hashable {
             return "Today"
         case .upcoming:
             return "Upcoming"
+        case .analytics:
+            return "Analytics"
         }
     }
 
@@ -34,6 +39,8 @@ enum MainTab: Hashable {
             return "sun.max"
         case .upcoming:
             return "calendar"
+        case .analytics:
+            return "chart.bar"
         }
     }
 }
@@ -76,6 +83,12 @@ struct ContentView: View {
                             Label(MainTab.upcoming.title, systemImage: MainTab.upcoming.systemImage)
                         }
                         .tag(MainTab.upcoming)
+
+                    AnalyticsView()
+                        .tabItem {
+                            Label(MainTab.analytics.title, systemImage: MainTab.analytics.systemImage)
+                        }
+                        .tag(MainTab.analytics)
                 }
                 .environmentObject(dragCoordinator)
                 .environmentObject(dayChangeObserver)
@@ -118,6 +131,7 @@ struct ContentView: View {
                     height: Self.tabBarDropHeight,
                     dragCoordinator: dragCoordinator,
                     reduceMotion: reduceMotion,
+                    tabOrder: MainTab.ordered,
                     onSwitchTab: { tab in
                         guard selection != tab else { return }
                         if reduceMotion {
@@ -157,41 +171,26 @@ struct ContentView: View {
         let vertical = value.translation.height
         guard abs(horizontal) > abs(vertical), abs(horizontal) > swipeThreshold else { return }
 
+        let order = MainTab.ordered
+        guard let currentIndex = order.firstIndex(of: selection) else { return }
+
         if horizontal > 0 {
-            // Swipe right: move forward (Inbox -> Today -> Upcoming)
-            switch selection {
-            case .inbox:
-                if reduceMotion {
-                    selection = .today
-                } else {
-                    withAnimation(.easeOut(duration: Self.swipeAnimationDuration)) { selection = .today }
-                }
-            case .today:
-                if reduceMotion {
-                    selection = .upcoming
-                } else {
-                    withAnimation(.easeOut(duration: Self.swipeAnimationDuration)) { selection = .upcoming }
-                }
-            case .upcoming:
-                break
+            let nextIndex = min(currentIndex + 1, order.count - 1)
+            guard nextIndex != currentIndex else { return }
+            let nextTab = order[nextIndex]
+            if reduceMotion {
+                selection = nextTab
+            } else {
+                withAnimation(.easeOut(duration: Self.swipeAnimationDuration)) { selection = nextTab }
             }
         } else {
-            // Swipe left: move backward (Upcoming -> Today -> Inbox)
-            switch selection {
-            case .upcoming:
-                if reduceMotion {
-                    selection = .today
-                } else {
-                    withAnimation(.easeOut(duration: Self.swipeAnimationDuration)) { selection = .today }
-                }
-            case .today:
-                if reduceMotion {
-                    selection = .inbox
-                } else {
-                    withAnimation(.easeOut(duration: Self.swipeAnimationDuration)) { selection = .inbox }
-                }
-            case .inbox:
-                break
+            let previousIndex = max(currentIndex - 1, 0)
+            guard previousIndex != currentIndex else { return }
+            let previousTab = order[previousIndex]
+            if reduceMotion {
+                selection = previousTab
+            } else {
+                withAnimation(.easeOut(duration: Self.swipeAnimationDuration)) { selection = previousTab }
             }
         }
     }
@@ -222,6 +221,7 @@ private struct TabBarDropOverlay: View {
     let height: CGFloat
     @ObservedObject var dragCoordinator: DragCoordinator
     let reduceMotion: Bool
+    let tabOrder: [MainTab]
     let onSwitchTab: (MainTab) -> Void
 
     private var highlightActive: Bool {
@@ -236,7 +236,7 @@ private struct TabBarDropOverlay: View {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color.blue.opacity(highlightActive ? 0.4 : 0), lineWidth: 1)
                 )
-                .frame(width: max(0, width / 3 - 12), height: max(0, height - 8))
+                .frame(width: max(0, width / CGFloat(max(tabOrder.count, 1)) - 12), height: max(0, height - 8))
                 .offset(x: highlightOffset)
                 .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: highlightActive)
 
@@ -254,7 +254,8 @@ private struct TabBarDropOverlay: View {
             dragCoordinator: dragCoordinator,
             onSwitchTab: onSwitchTab,
             hoverDelay: ContentView.tabSwitchHoverDelay,
-            targetTabs: dragCoordinator.targetTabs
+            targetTabs: dragCoordinator.targetTabs,
+            tabOrder: tabOrder
         ))
     }
 
@@ -265,15 +266,11 @@ private struct TabBarDropOverlay: View {
 
     private var highlightOffset: CGFloat {
         guard let highlightTab else { return 0 }
-        let tabWidth = width / 3
-        switch highlightTab {
-        case .inbox:
-            return -tabWidth
-        case .today:
-            return 0
-        case .upcoming:
-            return tabWidth
-        }
+        let tabCount = max(tabOrder.count, 1)
+        let tabWidth = width / CGFloat(tabCount)
+        let mid = CGFloat(tabCount - 1) / 2.0
+        let index = tabOrder.firstIndex(of: highlightTab) ?? 0
+        return (CGFloat(index) - mid) * tabWidth
     }
 }
 
