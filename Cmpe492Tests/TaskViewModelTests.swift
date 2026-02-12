@@ -1039,7 +1039,7 @@ final class TaskViewModelTests: XCTestCase {
         XCTAssertEqual(todayViewModel.tasks.count, 0)
     }
 
-    func testStateSortingGroupsAndSortsWithinGroup() throws {
+    func testSortingUsesManualSortOrderAcrossStates() throws {
         let activeLow = Task(context: context)
         activeLow.id = UUID()
         activeLow.text = "Active Low"
@@ -1086,7 +1086,7 @@ final class TaskViewModelTests: XCTestCase {
         RunLoop.main.run(until: Date().addingTimeInterval(0.05))
 
         let ordered = viewModel.tasks.map { $0.id }
-        XCTAssertEqual(ordered, [activeLow.id, activeHigh.id, notStarted.id, completed.id])
+        XCTAssertEqual(ordered, [activeLow.id, notStarted.id, completed.id, activeHigh.id])
     }
 
     func testMoveTasksKeepsStateGrouping() throws {

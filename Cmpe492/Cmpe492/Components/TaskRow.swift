@@ -22,7 +22,7 @@ struct TaskRow: View {
         let textColor: Color = state == .active ? .blue : (state == .completed ? .secondary : .primary)
         let backgroundColor: Color = state == .active ? Color.blue.opacity(0.1) : .clear
         let baseOpacity: Double = state == .completed ? 0.5 : 1.0
-        let dragOpacity: Double = isDragging ? 0.3 : 1.0
+        let dragOpacity: Double = 1.0
 
         taskText(
             text: task.wrappedText,

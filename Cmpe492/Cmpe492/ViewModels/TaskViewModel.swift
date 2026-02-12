@@ -94,7 +94,7 @@ final class TaskViewModel: NSObject, ObservableObject {
             try PerformanceMetrics.measure("fetchTasks_initial_\(filterLabel)") {
                 try fetchedResultsController.performFetch()
             }
-            tasks = sortTasks(fetchedResultsController.fetchedObjects ?? [])
+            tasks = prepareTasksForDisplay(fetchedResultsController.fetchedObjects ?? [])
         } catch {
             logger.error("Initial fetch failed: \(error.localizedDescription)")
         }
@@ -187,20 +187,8 @@ final class TaskViewModel: NSObject, ObservableObject {
     func moveTasks(fromOffsets: IndexSet, toOffset: Int, persist: Bool = true) {
         guard !fromOffsets.isEmpty,
               fromOffsets.allSatisfy({ tasks.indices.contains($0) }),
-              let firstIndex = fromOffsets.first else {
+              toOffset >= 0 else {
             return
-        }
-
-        let movingState = tasks[firstIndex].stateValue
-        let shouldClampToStateGroup = fromOffsets.allSatisfy { index in
-            tasks[index].stateValue == movingState
-        }
-        var clampedOffset = toOffset
-        if shouldClampToStateGroup {
-            let groupIndices = tasks.indices.filter { tasks[$0].stateValue == movingState }
-            if let start = groupIndices.first, let end = groupIndices.last {
-                clampedOffset = min(max(toOffset, start), end + 1)
-            }
         }
 
         var reordered = tasks
@@ -209,7 +197,7 @@ final class TaskViewModel: NSObject, ObservableObject {
             for index in fromOffsets.sorted(by: >) {
                 reordered.remove(at: index)
             }
-            let adjustedOffset = clampedOffset - fromOffsets.filter { $0 < clampedOffset }.count
+            let adjustedOffset = toOffset - fromOffsets.filter { $0 < toOffset }.count
             reordered.insert(contentsOf: movingTasks, at: max(0, min(reordered.count, adjustedOffset)))
         }
         let now = Date()
@@ -218,7 +206,7 @@ final class TaskViewModel: NSObject, ObservableObject {
             item.updatedAt = now
         }
 
-        tasks = sortTasks(reordered)
+        tasks = reordered
         if persist {
             persistSortOrderInBackground(taskIDs: tasks.map(\.objectID))
         }
@@ -314,7 +302,7 @@ final class TaskViewModel: NSObject, ObservableObject {
             try PerformanceMetrics.measure("fetchTasks_refresh_\(filterLabel)") {
                 try fetchedResultsController.performFetch()
             }
-            tasks = sortTasks(fetchedResultsController.fetchedObjects ?? [])
+            tasks = prepareTasksForDisplay(fetchedResultsController.fetchedObjects ?? [])
         } catch {
             logger.error("Refresh failed: \(error.localizedDescription)")
         }
@@ -541,19 +529,35 @@ final class TaskViewModel: NSObject, ObservableObject {
 
 extension TaskViewModel: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tasks = sortTasks(fetchedResultsController.fetchedObjects ?? [])
+        tasks = prepareTasksForDisplay(fetchedResultsController.fetchedObjects ?? [])
     }
 }
 
 private extension TaskViewModel {
+    func prepareTasksForDisplay(_ input: [Task]) -> [Task] {
+        ensureMissingTaskIDs(input)
+        return sortTasks(input)
+    }
+
+    func ensureMissingTaskIDs(_ input: [Task]) {
+        let missingIDTasks = input.filter { $0.id == nil }
+        guard !missingIDTasks.isEmpty else { return }
+
+        let now = Date()
+        for task in missingIDTasks {
+            task.id = UUID()
+            task.updatedAt = now
+        }
+
+        do {
+            try context.save()
+        } catch {
+            logger.error("Assign missing task IDs failed: \(error.localizedDescription)")
+        }
+    }
+
     func sortTasks(_ input: [Task]) -> [Task] {
         input.sorted { lhs, rhs in
-            let lhsOrder = stateOrder(for: lhs.stateValue)
-            let rhsOrder = stateOrder(for: rhs.stateValue)
-            if lhsOrder != rhsOrder {
-                return lhsOrder < rhsOrder
-            }
-
             if lhs.sortOrder != rhs.sortOrder {
                 return lhs.sortOrder < rhs.sortOrder
             }
@@ -561,17 +565,6 @@ private extension TaskViewModel {
             let lhsDate = lhs.createdAt ?? Date.distantPast
             let rhsDate = rhs.createdAt ?? Date.distantPast
             return lhsDate < rhsDate
-        }
-    }
-
-    func stateOrder(for state: TaskState) -> Int {
-        switch state {
-        case .active:
-            return 0
-        case .notStarted:
-            return 1
-        case .completed:
-            return 2
         }
     }
 }

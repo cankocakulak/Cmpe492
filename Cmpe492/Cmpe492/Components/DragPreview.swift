@@ -7,20 +7,26 @@
 
 import SwiftUI
 import CoreData
+import UIKit
 
 struct DragPreview: View {
     let task: Task
 
     var body: some View {
+        let state = task.stateValue
+        let textColor: Color = state == .active ? .blue : (state == .completed ? .secondary : .primary)
+        let textOpacity: Double = state == .completed ? 0.5 : 1.0
         Text(task.wrappedText)
             .font(.body)
-            .foregroundStyle(Color.primary)
+            .fontWeight(state == .completed ? .regular : .semibold)
+            .foregroundStyle(textColor)
             .lineLimit(nil)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .frame(width: max(UIScreen.main.bounds.width - 40, 280), alignment: .leading)
+            .frame(minHeight: 44, alignment: .leading)
             .background(Color(.systemBackground))
-            .opacity(0.7)
+            .opacity(textOpacity)
             .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 8)
     }
 }

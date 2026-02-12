@@ -50,19 +50,24 @@ struct UpcomingView: View {
                 List {
                     ForEach(sections) { section in
                         Section {
-                            ForEach(Array(section.tasks.enumerated()), id: \.element.id) { index, task in
-                                TaskRow(
-                                    task: task,
-                                    onTap: {
-                                        guard let taskID = task.id else { return }
-                                        viewModel.cycleTaskState(taskID: taskID)
-                                        impact(.light)
-                                    },
-                                    isDragging: dragCoordinator.draggingTaskID == task.id,
-                                    onMoveToday: { quickSchedule(task, date: Date(), fromIndex: index, targetView: .today) },
-                                    onMoveTomorrow: { quickSchedule(task, date: viewModel.tomorrowStartDate, fromIndex: index, targetView: .upcoming) },
-                                    onDelete: { performQuickAction { viewModel.deleteTask(task) } }
-                                )
+                            ForEach(Array(section.tasks.enumerated()), id: \.element.objectID) { index, task in
+                                HStack(spacing: 0) {
+                                    TaskRow(
+                                        task: task,
+                                        onTap: {
+                                            guard let taskID = task.id else { return }
+                                            viewModel.cycleTaskState(taskID: taskID)
+                                            impact(.light)
+                                        },
+                                        isDragging: dragCoordinator.draggingTaskID != nil && dragCoordinator.draggingTaskID == task.id,
+                                        onMoveToday: { quickSchedule(task, date: Date(), fromIndex: index, targetView: .today) },
+                                        onMoveTomorrow: { quickSchedule(task, date: viewModel.tomorrowStartDate, fromIndex: index, targetView: .upcoming) },
+                                        onDelete: { performQuickAction { viewModel.deleteTask(task) } }
+                                    )
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                    reorderHandle(task: task, index: index)
+                                }
                                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                                     .listRowSeparatorTint(Color(.separator))
                                     .overlay(
@@ -88,20 +93,7 @@ struct UpcomingView: View {
                                         selectedDate = viewModel.tomorrowStartDate
                                         showScheduleMenu = true
                                     }
-                                    .onDrag {
-                                        dragCoordinator.beginDrag(
-                                            taskID: task.id,
-                                            source: .upcoming,
-                                            originIndex: index,
-                                            scheduledDate: task.scheduledDate,
-                                            sortOrder: task.sortOrder
-                                        )
-                                        impact(.medium)
-                                        return NSItemProvider(object: (task.id?.uuidString ?? "") as NSString)
-                                    } preview: {
-                                        DragPreview(task: task)
-                                    }
-                                    .onDrop(of: [UTType.text], delegate: TaskReorderDropDelegate(
+                                    .onDrop(of: [TaskDragPayload.type], delegate: TaskReorderDropDelegate(
                                         targetTask: task,
                                         tasks: viewModel.tasks,
                                         draggingTaskID: $dragCoordinator.draggingTaskID,
@@ -134,7 +126,7 @@ struct UpcomingView: View {
                     }
                 }
                 .listStyle(.plain)
-                .onDrop(of: [UTType.text], delegate: TaskListDropDelegate(
+                .onDrop(of: [TaskDragPayload.type], delegate: TaskListDropDelegate(
                     tasks: viewModel.tasks,
                     draggingTaskID: $dragCoordinator.draggingTaskID,
                     dropTargetID: $dragCoordinator.dropTargetID,
@@ -208,6 +200,28 @@ struct UpcomingView: View {
             .padding(.horizontal, 24)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .allowsHitTesting(false)
+    }
+
+    private func reorderHandle(task: Task, index: Int) -> some View {
+        Image(systemName: "line.2.horizontal")
+            .font(.body.weight(.semibold))
+            .foregroundStyle(Color.secondary)
+            .frame(width: 34, height: 44)
+            .contentShape(Rectangle())
+            .onDrag {
+                dragCoordinator.beginDrag(
+                    taskID: task.id,
+                    source: .upcoming,
+                    originIndex: index,
+                    scheduledDate: task.scheduledDate,
+                    sortOrder: task.sortOrder
+                )
+                impact(.medium)
+                return TaskDragPayload.itemProvider(for: task.id)
+            } preview: {
+                DragPreview(task: task)
+            }
+            .accessibilityLabel("Reorder task")
     }
 
     private func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {

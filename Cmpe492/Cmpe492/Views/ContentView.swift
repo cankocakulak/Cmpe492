@@ -81,12 +81,6 @@ struct ContentView: View {
                 .environmentObject(dayChangeObserver)
                 .environmentObject(undoCoordinator)
                 .contentShape(Rectangle())
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 20, coordinateSpace: .local)
-                        .onEnded { value in
-                            handleSwipe(value, width: proxy.size.width)
-                        }
-                )
                 .onChange(of: selection) { _ in
                     focusTrigger = UUID()
                 }
@@ -102,6 +96,22 @@ struct ContentView: View {
                 .onReceive(NotificationCenter.default.publisher(for: .NSSystemTimeZoneDidChange)) { _ in
                     dayChangeObserver.bump()
                 }
+
+                EdgeSwipeOverlay(
+                    width: 24,
+                    alignment: .leading,
+                    onSwipe: { value in
+                        handleSwipe(value)
+                    }
+                )
+
+                EdgeSwipeOverlay(
+                    width: 24,
+                    alignment: .trailing,
+                    onSwipe: { value in
+                        handleSwipe(value)
+                    }
+                )
 
                 TabBarDropOverlay(
                     width: proxy.size.width,
@@ -141,16 +151,8 @@ struct ContentView: View {
         }
     }
 
-    private func handleSwipe(_ value: DragGesture.Value, width: CGFloat) {
+    private func handleSwipe(_ value: DragGesture.Value) {
         guard !dragCoordinator.isDragging else { return }
-        let startX = value.startLocation.x
-        let startY = value.startLocation.y
-        let edgeZone: CGFloat = 24
-        let headerZone: CGFloat = 120
-        let isEdgeSwipe = startX <= edgeZone || startX >= width - edgeZone
-        let isHeaderSwipe = startY <= headerZone
-        guard isEdgeSwipe || isHeaderSwipe else { return }
-
         let horizontal = value.translation.width
         let vertical = value.translation.height
         guard abs(horizontal) > abs(vertical), abs(horizontal) > swipeThreshold else { return }
@@ -195,6 +197,26 @@ struct ContentView: View {
     }
 }
 
+private struct EdgeSwipeOverlay: View {
+    let width: CGFloat
+    let alignment: Alignment
+    let onSwipe: (DragGesture.Value) -> Void
+
+    var body: some View {
+        Color.clear
+            .contentShape(Rectangle())
+            .frame(width: width)
+            .frame(maxHeight: .infinity)
+            .frame(maxWidth: .infinity, alignment: alignment)
+            .gesture(
+                DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                    .onEnded { value in
+                        onSwipe(value)
+                    }
+            )
+    }
+}
+
 private struct TabBarDropOverlay: View {
     let width: CGFloat
     let height: CGFloat
@@ -227,7 +249,7 @@ private struct TabBarDropOverlay: View {
             }
         }
         .frame(width: width, height: height)
-        .onDrop(of: [UTType.text], delegate: TabBarDropDelegate(
+        .onDrop(of: [TaskDragPayload.type], delegate: TabBarDropDelegate(
             width: width,
             dragCoordinator: dragCoordinator,
             onSwitchTab: onSwitchTab,

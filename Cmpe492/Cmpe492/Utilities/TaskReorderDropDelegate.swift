@@ -64,6 +64,16 @@ struct TaskReorderDropDelegate: DropDelegate {
            let toIndex = tasks.firstIndex(where: { $0.id == targetTask.id }) {
             onExternalDrop?(draggingID, toIndex)
         } else if isInternal {
+            if let draggingID = draggingTaskID,
+               let fromIndex = tasks.firstIndex(where: { $0.id == draggingID }),
+               let toIndex = tasks.firstIndex(where: { $0.id == targetTask.id }),
+               fromIndex != toIndex {
+                viewModel.moveTasks(
+                    fromOffsets: IndexSet(integer: fromIndex),
+                    toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex,
+                    persist: false
+                )
+            }
             viewModel.persistCurrentOrder()
         }
 
