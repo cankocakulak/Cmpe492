@@ -21,6 +21,10 @@ struct InboxView: View {
     @State private var showDatePicker: Bool = false
     @State private var scheduleTaskID: UUID?
     @State private var selectedDate: Date = Date()
+    @State private var reorderTaskID: UUID?
+    @State private var reorderOriginIndex: Int = 0
+    @State private var reorderLastTargetIndex: Int?
+    private let reorderStepHeight: CGFloat = 56
 
     @MainActor
     init(viewModel: TaskViewModel? = nil, focusTrigger: AnyHashable? = nil) {
@@ -44,23 +48,23 @@ struct InboxView: View {
 
                 List {
                     ForEach(Array(viewModel.tasks.enumerated()), id: \.element.objectID) { index, task in
-                        HStack(spacing: 0) {
-                            TaskRow(
-                                task: task,
-                                onTap: {
-                                    guard let taskID = task.id else { return }
-                                    viewModel.cycleTaskState(taskID: taskID)
-                                    impact(.light)
-                                },
-                                isDragging: dragCoordinator.draggingTaskID != nil && dragCoordinator.draggingTaskID == task.id,
-                                onMoveToday: { quickSchedule(task, date: Date(), fromIndex: index, targetView: .today) },
-                                onMoveTomorrow: { quickSchedule(task, date: viewModel.tomorrowStartDate, fromIndex: index, targetView: .upcoming) },
-                                onDelete: { performDeleteAction { viewModel.deleteTask(task) } }
-                            )
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                            reorderHandle(task: task, index: index)
-                        }
+                        TaskRow(
+                            task: task,
+                            onTap: {
+                                guard let taskID = task.id else { return }
+                                viewModel.cycleTaskState(taskID: taskID)
+                                impact(.light)
+                            },
+                            isDragging: dragCoordinator.draggingTaskID != nil && dragCoordinator.draggingTaskID == task.id,
+                            onMoveToday: { quickSchedule(task, date: Date(), fromIndex: index, targetView: .today) },
+                            onMoveTomorrow: { quickSchedule(task, date: viewModel.tomorrowStartDate, fromIndex: index, targetView: .upcoming) },
+                            onReorderDragChanged: { value in
+                                handleImmediateReorder(taskID: task.id, translationY: value.translation.height)
+                            },
+                            onReorderDragEnded: { finishImmediateReorder() },
+                            onDelete: { performDeleteAction { viewModel.deleteTask(task) } }
+                        )
+                        .frame(maxWidth: .infinity, alignment: .leading)
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                             .listRowSeparatorTint(Color(.separator))
                             .overlay(
@@ -80,15 +84,8 @@ struct InboxView: View {
                                         .padding(.horizontal, 16)
                                 }
                             }
-                            .onLongPressGesture(minimumDuration: 1.0) {
-                                guard dragCoordinator.draggingTaskID == nil else { return }
-                                scheduleTaskID = task.id
-                                selectedDate = viewModel.tomorrowStartDate
-                                showScheduleMenu = true
-                            }
                             .onDrop(of: [TaskDragPayload.type], delegate: TaskReorderDropDelegate(
                                 targetTask: task,
-                                tasks: viewModel.tasks,
                                 draggingTaskID: $dragCoordinator.draggingTaskID,
                                 dropTargetID: $dragCoordinator.dropTargetID,
                                 viewModel: viewModel,
@@ -106,8 +103,8 @@ struct InboxView: View {
                     }
                 }
                 .listStyle(.plain)
+                .dismissKeyboardOnTap()
                 .onDrop(of: [TaskDragPayload.type], delegate: TaskListDropDelegate(
-                    tasks: viewModel.tasks,
                     draggingTaskID: $dragCoordinator.draggingTaskID,
                     dropTargetID: $dragCoordinator.dropTargetID,
                     viewModel: viewModel,
@@ -179,32 +176,52 @@ struct InboxView: View {
             .allowsHitTesting(false)
     }
 
-    private func reorderHandle(task: Task, index: Int) -> some View {
-        Image(systemName: "line.2.horizontal")
-            .font(.body.weight(.semibold))
-            .foregroundStyle(Color.secondary)
-            .frame(width: 34, height: 44)
-            .contentShape(Rectangle())
-            .onDrag {
-                dragCoordinator.beginDrag(
-                    taskID: task.id,
-                    source: .inbox,
-                    originIndex: index,
-                    scheduledDate: task.scheduledDate,
-                    sortOrder: task.sortOrder
-                )
-                impact(.medium)
-                return TaskDragPayload.itemProvider(for: task.id)
-            } preview: {
-                DragPreview(task: task)
-            }
-            .accessibilityLabel("Reorder task")
-    }
-
     private func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.prepare()
         generator.impactOccurred()
+    }
+
+    private func handleImmediateReorder(taskID: UUID?, translationY: CGFloat) {
+        guard let taskID else { return }
+
+        if reorderTaskID != taskID {
+            reorderTaskID = taskID
+            reorderOriginIndex = viewModel.tasks.firstIndex(where: { $0.id == taskID }) ?? 0
+            reorderLastTargetIndex = reorderOriginIndex
+        }
+
+        guard let currentIndex = viewModel.tasks.firstIndex(where: { $0.id == taskID }),
+              !viewModel.tasks.isEmpty else { return }
+
+        let steps = Int((translationY / reorderStepHeight).rounded(.towardZero))
+        let targetIndex = max(0, min(viewModel.tasks.count - 1, reorderOriginIndex + steps))
+        guard targetIndex != reorderLastTargetIndex, targetIndex != currentIndex else { return }
+
+        let move = {
+            viewModel.moveTasks(
+                fromOffsets: IndexSet(integer: currentIndex),
+                toOffset: targetIndex > currentIndex ? targetIndex + 1 : targetIndex,
+                persist: false
+            )
+        }
+        if reduceMotion {
+            move()
+        } else {
+            withAnimation(.interactiveSpring(response: 0.22, dampingFraction: 0.86)) {
+                move()
+            }
+        }
+        reorderLastTargetIndex = targetIndex
+    }
+
+    private func finishImmediateReorder() {
+        guard reorderTaskID != nil else { return }
+        viewModel.persistCurrentOrder()
+        reorderTaskID = nil
+        reorderOriginIndex = 0
+        reorderLastTargetIndex = nil
+        impact(.light)
     }
 
     private func performQuickAction(_ action: @escaping () -> Void) {

@@ -10,7 +10,6 @@ import UniformTypeIdentifiers
 
 struct TaskReorderDropDelegate: DropDelegate {
     let targetTask: Task
-    let tasks: [Task]
     @Binding var draggingTaskID: UUID?
     @Binding var dropTargetID: UUID?
     let viewModel: TaskViewModel
@@ -22,10 +21,11 @@ struct TaskReorderDropDelegate: DropDelegate {
         if dropTargetID != targetTask.id {
             dropTargetID = targetTask.id
         }
+        let currentTasks = viewModel.tasks
         guard
             let draggingID = draggingTaskID,
-            let fromIndex = tasks.firstIndex(where: { $0.id == draggingID }),
-            let toIndex = tasks.firstIndex(where: { $0.id == targetTask.id }),
+            let fromIndex = currentTasks.firstIndex(where: { $0.id == draggingID }),
+            let toIndex = currentTasks.firstIndex(where: { $0.id == targetTask.id }),
             fromIndex != toIndex
         else { return }
 
@@ -57,16 +57,17 @@ struct TaskReorderDropDelegate: DropDelegate {
     }
 
     func performDrop(info: DropInfo) -> Bool {
-        let isInternal = draggingTaskID.flatMap { id in tasks.firstIndex(where: { $0.id == id }) } != nil
+        let currentTasks = viewModel.tasks
+        let isInternal = draggingTaskID.flatMap { id in currentTasks.firstIndex(where: { $0.id == id }) } != nil
 
         if let draggingID = draggingTaskID,
-           tasks.firstIndex(where: { $0.id == draggingID }) == nil,
-           let toIndex = tasks.firstIndex(where: { $0.id == targetTask.id }) {
+           currentTasks.firstIndex(where: { $0.id == draggingID }) == nil,
+           let toIndex = currentTasks.firstIndex(where: { $0.id == targetTask.id }) {
             onExternalDrop?(draggingID, toIndex)
         } else if isInternal {
             if let draggingID = draggingTaskID,
-               let fromIndex = tasks.firstIndex(where: { $0.id == draggingID }),
-               let toIndex = tasks.firstIndex(where: { $0.id == targetTask.id }),
+               let fromIndex = currentTasks.firstIndex(where: { $0.id == draggingID }),
+               let toIndex = currentTasks.firstIndex(where: { $0.id == targetTask.id }),
                fromIndex != toIndex {
                 viewModel.moveTasks(
                     fromOffsets: IndexSet(integer: fromIndex),

@@ -9,18 +9,10 @@ import Foundation
 import UniformTypeIdentifiers
 
 enum TaskDragPayload {
-    static let type = UTType(importedAs: "com.kantakademi.cmpe492.task-id")
+    static let type = UTType.text
 
     static func itemProvider(for taskID: UUID?) -> NSItemProvider {
-        let provider = NSItemProvider()
-        let payload = (taskID?.uuidString ?? "").data(using: .utf8) ?? Data()
-        provider.registerDataRepresentation(
-            forTypeIdentifier: type.identifier,
-            visibility: .all
-        ) { completion in
-            completion(payload, nil)
-            return nil
-        }
-        return provider
+        let payload = taskID?.uuidString ?? ""
+        return NSItemProvider(object: payload as NSString)
     }
 }

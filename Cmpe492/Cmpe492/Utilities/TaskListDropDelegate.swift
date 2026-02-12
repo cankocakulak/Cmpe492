@@ -9,7 +9,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct TaskListDropDelegate: DropDelegate {
-    let tasks: [Task]
     @Binding var draggingTaskID: UUID?
     @Binding var dropTargetID: UUID?
     let viewModel: TaskViewModel
@@ -23,10 +22,11 @@ struct TaskListDropDelegate: DropDelegate {
 
     func performDrop(info: DropInfo) -> Bool {
         guard let draggingID = draggingTaskID else { return false }
+        let currentTasks = viewModel.tasks
 
-        if let fromIndex = tasks.firstIndex(where: { $0.id == draggingID }) {
+        if let fromIndex = currentTasks.firstIndex(where: { $0.id == draggingID }) {
             let move = {
-                viewModel.moveTasks(fromOffsets: IndexSet(integer: fromIndex), toOffset: tasks.count, persist: false)
+                viewModel.moveTasks(fromOffsets: IndexSet(integer: fromIndex), toOffset: currentTasks.count, persist: false)
             }
             if shouldAnimate {
                 withAnimation(.spring(response: 0.2, dampingFraction: 0.85)) {

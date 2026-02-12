@@ -567,14 +567,41 @@ private extension TaskViewModel {
     }
 
     func sortTasks(_ input: [Task]) -> [Task] {
-        input.sorted { lhs, rhs in
-            if lhs.sortOrder != rhs.sortOrder {
-                return lhs.sortOrder < rhs.sortOrder
+        switch filter {
+        case .upcoming:
+            return input.sorted { lhs, rhs in
+                let lhsCompleted = lhs.stateValue == .completed
+                let rhsCompleted = rhs.stateValue == .completed
+                if lhsCompleted != rhsCompleted {
+                    return !lhsCompleted
+                }
+                let lhsDate = DateHelpers.startOfDay(for: lhs.scheduledDate ?? Date.distantFuture)
+                let rhsDate = DateHelpers.startOfDay(for: rhs.scheduledDate ?? Date.distantFuture)
+                if lhsDate != rhsDate {
+                    return lhsDate < rhsDate
+                }
+                if lhs.sortOrder != rhs.sortOrder {
+                    return lhs.sortOrder < rhs.sortOrder
+                }
+                let lhsCreated = lhs.createdAt ?? Date.distantPast
+                let rhsCreated = rhs.createdAt ?? Date.distantPast
+                return lhsCreated < rhsCreated
             }
+        case .all, .inbox, .today:
+            return input.sorted { lhs, rhs in
+                let lhsCompleted = lhs.stateValue == .completed
+                let rhsCompleted = rhs.stateValue == .completed
+                if lhsCompleted != rhsCompleted {
+                    return !lhsCompleted
+                }
+                if lhs.sortOrder != rhs.sortOrder {
+                    return lhs.sortOrder < rhs.sortOrder
+                }
 
-            let lhsDate = lhs.createdAt ?? Date.distantPast
-            let rhsDate = rhs.createdAt ?? Date.distantPast
-            return lhsDate < rhsDate
+                let lhsDate = lhs.createdAt ?? Date.distantPast
+                let rhsDate = rhs.createdAt ?? Date.distantPast
+                return lhsDate < rhsDate
+            }
         }
     }
 }

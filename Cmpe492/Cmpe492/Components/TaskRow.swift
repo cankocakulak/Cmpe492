@@ -17,6 +17,8 @@ struct TaskRow: View {
     var onMoveInbox: (() -> Void)?
     var hideMoveToday: Bool = false
     var hideMoveUpcoming: Bool = false
+    var onReorderDragChanged: ((DragGesture.Value) -> Void)? = nil
+    var onReorderDragEnded: (() -> Void)? = nil
     var onDelete: (() -> Void)?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -33,11 +35,32 @@ struct TaskRow: View {
             textColor: textColor,
             backgroundColor: backgroundColor,
             baseOpacity: baseOpacity,
-            dragOpacity: dragOpacity
+            dragOpacity: dragOpacity,
+            trailingPadding: (onReorderDragChanged == nil && onReorderDragEnded == nil) ? 20 : 54
         )
             .contentShape(Rectangle())
             .onTapGesture {
                 onTap()
+            }
+            .overlay(alignment: .trailing) {
+                if onReorderDragChanged != nil || onReorderDragEnded != nil {
+                    Image(systemName: "line.3.horizontal")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Color.secondary)
+                        .frame(width: 40, height: 44)
+                        .contentShape(Rectangle())
+                        .padding(.trailing, 6)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    onReorderDragChanged?(value)
+                                }
+                                .onEnded { _ in
+                                    onReorderDragEnded?()
+                                }
+                        )
+                        .accessibilityLabel("Reorder task")
+                }
             }
             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 if let onDelete {
@@ -85,14 +108,16 @@ struct TaskRow: View {
         textColor: Color,
         backgroundColor: Color,
         baseOpacity: Double,
-        dragOpacity: Double
+        dragOpacity: Double,
+        trailingPadding: CGFloat
     ) -> some View {
         let baseText = Text(text)
             .font(.body)
             .fontWeight(state == .completed ? .regular : .semibold)
             .foregroundStyle(textColor)
             .lineLimit(nil)
-            .padding(.horizontal, 20)
+            .padding(.leading, 20)
+            .padding(.trailing, trailingPadding)
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
             .opacity(baseOpacity * dragOpacity)

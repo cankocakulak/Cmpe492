@@ -25,10 +25,6 @@ enum DateHelpers {
     }
 
     static func sectionTitle(for date: Date, referenceDate: Date) -> String {
-        let tomorrow = startOfTomorrow(for: referenceDate)
-        if calendar.isDate(date, inSameDayAs: tomorrow) {
-            return "Tomorrow"
-        }
         return monthDayFormatter.string(from: date)
     }
 
