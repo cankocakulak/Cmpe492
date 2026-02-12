@@ -899,4 +899,330 @@ final class TaskViewModelTests: XCTestCase {
 
         XCTAssertEqual(todayViewModel.tasks.first?.scheduledDate, expected)
     }
+
+    func testUpdateTaskStateToCompletedPersistsTimestamps() throws {
+        let task = Task(context: context)
+        task.id = UUID()
+        task.text = "State Task"
+        task.state = TaskState.notStarted.rawValue
+        task.createdAt = Date()
+        task.updatedAt = task.createdAt
+        task.completedAt = nil
+        task.scheduledDate = nil
+        task.sortOrder = 0
+        try context.save()
+
+        let viewModel = TaskViewModel(context: context)
+        let now = Date()
+        viewModel.updateTaskState(taskID: task.id!, to: .completed, now: now)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        let fetch: NSFetchRequest<Task> = Task.fetchRequest()
+        fetch.predicate = NSPredicate(format: "id == %@", task.id! as CVarArg)
+        let fetched = try context.fetch(fetch).first
+        XCTAssertEqual(fetched?.stateValue, .completed)
+        XCTAssertEqual(fetched?.completedAt, now)
+        XCTAssertEqual(fetched?.updatedAt, now)
+    }
+
+    func testUpdateTaskStateToNotStartedClearsCompletedAt() throws {
+        let task = Task(context: context)
+        task.id = UUID()
+        task.text = "State Task 2"
+        task.state = TaskState.completed.rawValue
+        task.createdAt = Date()
+        task.updatedAt = task.createdAt
+        task.completedAt = Date()
+        task.scheduledDate = nil
+        task.sortOrder = 0
+        try context.save()
+
+        let viewModel = TaskViewModel(context: context)
+        let now = Date()
+        viewModel.updateTaskState(taskID: task.id!, to: .notStarted, now: now)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        let fetch: NSFetchRequest<Task> = Task.fetchRequest()
+        fetch.predicate = NSPredicate(format: "id == %@", task.id! as CVarArg)
+        let fetched = try context.fetch(fetch).first
+        XCTAssertEqual(fetched?.stateValue, .notStarted)
+        XCTAssertNil(fetched?.completedAt)
+        XCTAssertEqual(fetched?.updatedAt, now)
+    }
+
+    func testCycleTaskStateAdvancesThroughAllStates() throws {
+        let task = Task(context: context)
+        task.id = UUID()
+        task.text = "Cycle Task"
+        task.state = TaskState.notStarted.rawValue
+        task.createdAt = Date()
+        task.updatedAt = task.createdAt
+        task.completedAt = nil
+        task.scheduledDate = nil
+        task.sortOrder = 0
+        try context.save()
+
+        let viewModel = TaskViewModel(context: context)
+        let now1 = Date()
+        viewModel.cycleTaskState(taskID: task.id!, now: now1)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        var fetched = try context.fetch(Task.fetchRequest()).first
+        XCTAssertEqual(fetched?.stateValue, .active)
+        XCTAssertNil(fetched?.completedAt)
+        XCTAssertEqual(fetched?.updatedAt, now1)
+
+        let now2 = now1.addingTimeInterval(1)
+        viewModel.cycleTaskState(taskID: task.id!, now: now2)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        fetched = try context.fetch(Task.fetchRequest()).first
+        XCTAssertEqual(fetched?.stateValue, .completed)
+        XCTAssertEqual(fetched?.completedAt, now2)
+        XCTAssertEqual(fetched?.updatedAt, now2)
+
+        let now3 = now2.addingTimeInterval(1)
+        viewModel.cycleTaskState(taskID: task.id!, now: now3)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        fetched = try context.fetch(Task.fetchRequest()).first
+        XCTAssertEqual(fetched?.stateValue, .notStarted)
+        XCTAssertNil(fetched?.completedAt)
+        XCTAssertEqual(fetched?.updatedAt, now3)
+    }
+
+    func testTodayFilterIncludesCompletedTasks() throws {
+        let calendar = Calendar.current
+        let reference = calendar.date(from: DateComponents(year: 2026, month: 2, day: 12, hour: 9))!
+        let todayStart = DateHelpers.startOfDay(for: reference)
+
+        let completedTask = Task(context: context)
+        completedTask.id = UUID()
+        completedTask.text = "Completed Today"
+        completedTask.state = TaskState.completed.rawValue
+        completedTask.createdAt = reference
+        completedTask.updatedAt = reference
+        completedTask.completedAt = reference
+        completedTask.scheduledDate = todayStart
+        completedTask.sortOrder = 0
+
+        try context.save()
+
+        let todayViewModel = TaskViewModel(context: context, filter: .today, referenceDate: reference)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        XCTAssertEqual(todayViewModel.tasks.count, 1)
+        XCTAssertEqual(todayViewModel.tasks.first?.stateValue, .completed)
+    }
+
+    func testTodayRefreshDropsYesterdayTasksWithoutRollover() throws {
+        let calendar = Calendar.current
+        let dayOne = calendar.date(from: DateComponents(year: 2026, month: 2, day: 12, hour: 9))!
+        let dayTwo = calendar.date(byAdding: .day, value: 1, to: dayOne)!
+        let dayOneStart = DateHelpers.startOfDay(for: dayOne)
+
+        let task = Task(context: context)
+        task.id = UUID()
+        task.text = "Yesterday Task"
+        task.state = TaskState.completed.rawValue
+        task.createdAt = dayOne
+        task.updatedAt = dayOne
+        task.completedAt = dayOne
+        task.scheduledDate = dayOneStart
+        task.sortOrder = 0
+
+        try context.save()
+
+        let todayViewModel = TaskViewModel(context: context, filter: .today, referenceDate: dayOne)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        XCTAssertEqual(todayViewModel.tasks.count, 1)
+
+        todayViewModel.refreshForNewDay(referenceDate: dayTwo)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        XCTAssertEqual(todayViewModel.tasks.count, 0)
+    }
+
+    func testStateSortingGroupsAndSortsWithinGroup() throws {
+        let activeLow = Task(context: context)
+        activeLow.id = UUID()
+        activeLow.text = "Active Low"
+        activeLow.state = TaskState.active.rawValue
+        activeLow.createdAt = Date()
+        activeLow.updatedAt = activeLow.createdAt
+        activeLow.completedAt = nil
+        activeLow.scheduledDate = nil
+        activeLow.sortOrder = 0
+
+        let activeHigh = Task(context: context)
+        activeHigh.id = UUID()
+        activeHigh.text = "Active High"
+        activeHigh.state = TaskState.active.rawValue
+        activeHigh.createdAt = Date().addingTimeInterval(1)
+        activeHigh.updatedAt = activeHigh.createdAt
+        activeHigh.completedAt = nil
+        activeHigh.scheduledDate = nil
+        activeHigh.sortOrder = 1
+
+        let notStarted = Task(context: context)
+        notStarted.id = UUID()
+        notStarted.text = "Not Started"
+        notStarted.state = TaskState.notStarted.rawValue
+        notStarted.createdAt = Date().addingTimeInterval(2)
+        notStarted.updatedAt = notStarted.createdAt
+        notStarted.completedAt = nil
+        notStarted.scheduledDate = nil
+        notStarted.sortOrder = 0
+
+        let completed = Task(context: context)
+        completed.id = UUID()
+        completed.text = "Completed"
+        completed.state = TaskState.completed.rawValue
+        completed.createdAt = Date().addingTimeInterval(3)
+        completed.updatedAt = completed.createdAt
+        completed.completedAt = completed.createdAt
+        completed.scheduledDate = nil
+        completed.sortOrder = 0
+
+        try context.save()
+
+        let viewModel = TaskViewModel(context: context, filter: .inbox)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        let ordered = viewModel.tasks.map { $0.id }
+        XCTAssertEqual(ordered, [activeLow.id, activeHigh.id, notStarted.id, completed.id])
+    }
+
+    func testMoveTasksKeepsStateGrouping() throws {
+        let active = Task(context: context)
+        active.id = UUID()
+        active.text = "Active"
+        active.state = TaskState.active.rawValue
+        active.createdAt = Date()
+        active.updatedAt = active.createdAt
+        active.completedAt = nil
+        active.scheduledDate = nil
+        active.sortOrder = 0
+
+        let notStartedA = Task(context: context)
+        notStartedA.id = UUID()
+        notStartedA.text = "Not Started A"
+        notStartedA.state = TaskState.notStarted.rawValue
+        notStartedA.createdAt = Date().addingTimeInterval(1)
+        notStartedA.updatedAt = notStartedA.createdAt
+        notStartedA.completedAt = nil
+        notStartedA.scheduledDate = nil
+        notStartedA.sortOrder = 1
+
+        let notStartedB = Task(context: context)
+        notStartedB.id = UUID()
+        notStartedB.text = "Not Started B"
+        notStartedB.state = TaskState.notStarted.rawValue
+        notStartedB.createdAt = Date().addingTimeInterval(2)
+        notStartedB.updatedAt = notStartedB.createdAt
+        notStartedB.completedAt = nil
+        notStartedB.scheduledDate = nil
+        notStartedB.sortOrder = 2
+
+        let completed = Task(context: context)
+        completed.id = UUID()
+        completed.text = "Completed"
+        completed.state = TaskState.completed.rawValue
+        completed.createdAt = Date().addingTimeInterval(3)
+        completed.updatedAt = completed.createdAt
+        completed.completedAt = completed.createdAt
+        completed.scheduledDate = nil
+        completed.sortOrder = 3
+
+        try context.save()
+
+        let viewModel = TaskViewModel(context: context, filter: .inbox)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        viewModel.moveTasks(fromOffsets: IndexSet(integer: 1), toOffset: 3)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        let ordered = viewModel.tasks.map { $0.id }
+        XCTAssertEqual(ordered, [active.id, notStartedB.id, notStartedA.id, completed.id])
+    }
+
+    func testCompletedCountReflectsTodayCompletedTasks() throws {
+        let calendar = Calendar.current
+        let reference = calendar.date(from: DateComponents(year: 2026, month: 2, day: 12, hour: 9))!
+        let todayStart = DateHelpers.startOfDay(for: reference)
+
+        let completedTask = Task(context: context)
+        completedTask.id = UUID()
+        completedTask.text = "Done"
+        completedTask.state = TaskState.completed.rawValue
+        completedTask.createdAt = reference
+        completedTask.updatedAt = reference
+        completedTask.completedAt = reference
+        completedTask.scheduledDate = todayStart
+        completedTask.sortOrder = 0
+
+        let notStartedTask = Task(context: context)
+        notStartedTask.id = UUID()
+        notStartedTask.text = "Todo"
+        notStartedTask.state = TaskState.notStarted.rawValue
+        notStartedTask.createdAt = reference
+        notStartedTask.updatedAt = reference
+        notStartedTask.completedAt = nil
+        notStartedTask.scheduledDate = todayStart
+        notStartedTask.sortOrder = 1
+
+        try context.save()
+
+        let viewModel = TaskViewModel(context: context, filter: .today, referenceDate: reference)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        XCTAssertEqual(viewModel.completedCount, 1)
+
+        viewModel.updateTaskState(taskID: completedTask.id!, to: .notStarted)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        XCTAssertEqual(viewModel.completedCount, 0)
+    }
+
+    func testStateChangePersistsInInboxFilter() throws {
+        let task = Task(context: context)
+        task.id = UUID()
+        task.text = "Inbox Task"
+        task.state = TaskState.notStarted.rawValue
+        task.createdAt = Date()
+        task.updatedAt = task.createdAt
+        task.completedAt = nil
+        task.scheduledDate = nil
+        task.sortOrder = 0
+        try context.save()
+
+        let inboxViewModel = TaskViewModel(context: context, filter: .inbox)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        inboxViewModel.updateTaskState(taskID: task.id!, to: .completed)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        XCTAssertEqual(inboxViewModel.tasks.count, 1)
+        XCTAssertEqual(inboxViewModel.tasks.first?.stateValue, .completed)
+    }
+
+    func testStateChangePersistsInUpcomingFilter() throws {
+        let calendar = Calendar.current
+        let reference = calendar.date(from: DateComponents(year: 2026, month: 2, day: 12, hour: 9))!
+        let tomorrowStart = DateHelpers.startOfTomorrow(for: reference)
+
+        let task = Task(context: context)
+        task.id = UUID()
+        task.text = "Upcoming Task"
+        task.state = TaskState.notStarted.rawValue
+        task.createdAt = reference
+        task.updatedAt = reference
+        task.completedAt = nil
+        task.scheduledDate = tomorrowStart
+        task.sortOrder = 0
+        try context.save()
+
+        let upcomingViewModel = TaskViewModel(context: context, filter: .upcoming, referenceDate: reference)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        upcomingViewModel.updateTaskState(taskID: task.id!, to: .completed)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+
+        XCTAssertEqual(upcomingViewModel.tasks.count, 1)
+        XCTAssertEqual(upcomingViewModel.tasks.first?.stateValue, .completed)
+    }
 }

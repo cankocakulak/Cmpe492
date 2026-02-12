@@ -53,7 +53,11 @@ struct UpcomingView: View {
                             ForEach(Array(section.tasks.enumerated()), id: \.element.id) { index, task in
                                 TaskRow(
                                     task: task,
-                                    onTap: {},
+                                    onTap: {
+                                        guard let taskID = task.id else { return }
+                                        viewModel.cycleTaskState(taskID: taskID)
+                                        impact(.light)
+                                    },
                                     isDragging: dragCoordinator.draggingTaskID == task.id,
                                     onMoveToday: { quickSchedule(task, date: Date(), fromIndex: index, targetView: .today) },
                                     onMoveTomorrow: { quickSchedule(task, date: viewModel.tomorrowStartDate, fromIndex: index, targetView: .upcoming) },
@@ -146,7 +150,7 @@ struct UpcomingView: View {
                         dragCoordinator.endDrag()
                     }
                 ))
-                .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: viewModel.tasks)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: viewModel.tasks)
                 .overlay {
                     if viewModel.tasks.isEmpty {
                         emptyStateView(

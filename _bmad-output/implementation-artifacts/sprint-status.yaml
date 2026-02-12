@@ -84,15 +84,15 @@ development_status:
   epic-3-retrospective: optional
 
   # Epic 4: Task State Management & Completion
-  epic-4: backlog
-  4-1-implement-three-task-states-model-layer: backlog
-  4-2-implement-tap-to-change-state-interaction: backlog
-  4-3-implement-visual-differentiation-for-task-states: backlog
-  4-4-keep-completed-tasks-visible-in-today-view: backlog
-  4-5-track-completion-timestamps: backlog
-  4-6-implement-state-sorting-logic: backlog
-  4-7-display-completion-count-in-today-view: backlog
-  4-8-ensure-state-changes-work-across-all-views: backlog
+  epic-4: done
+  4-1-implement-three-task-states-model-layer: done
+  4-2-implement-tap-to-change-state-interaction: done
+  4-3-implement-visual-differentiation-for-task-states: done
+  4-4-keep-completed-tasks-visible-in-today-view: done
+  4-5-track-completion-timestamps: done
+  4-6-implement-state-sorting-logic: done
+  4-7-display-completion-count-in-today-view: done
+  4-8-ensure-state-changes-work-across-all-views: done
   epic-4-retrospective: optional
 
   # Epic 5: Task Deletion

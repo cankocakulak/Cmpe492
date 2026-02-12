@@ -50,8 +50,16 @@ extension Task {
         stateValue == .active
     }
 
+    var isNotStarted: Bool {
+        stateValue == .notStarted
+    }
+
     var isCompleted: Bool {
         stateValue == .completed
+    }
+
+    func markAsActive(now: Date = Date()) {
+        markActive(now: now)
     }
 
     func markActive(now: Date = Date()) {
@@ -60,10 +68,18 @@ extension Task {
         updatedAt = now
     }
 
+    func markAsCompleted(now: Date = Date()) {
+        markCompleted(now: now)
+    }
+
     func markCompleted(now: Date = Date()) {
         state = TaskState.completed.rawValue
         completedAt = now
         updatedAt = now
+    }
+
+    func markAsNotStarted(now: Date = Date()) {
+        markNotStarted(now: now)
     }
 
     func markNotStarted(now: Date = Date()) {

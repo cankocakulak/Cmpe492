@@ -67,4 +67,13 @@ final class TaskModelTests: XCTestCase {
         XCTAssertNil(task.completedAt)
         XCTAssertEqual(task.updatedAt, now)
     }
+
+    func testIsNotStartedComputedProperty() throws {
+        let task = Task(context: context)
+        task.state = TaskState.notStarted.rawValue
+        XCTAssertTrue(task.isNotStarted)
+
+        task.state = TaskState.active.rawValue
+        XCTAssertFalse(task.isNotStarted)
+    }
 }

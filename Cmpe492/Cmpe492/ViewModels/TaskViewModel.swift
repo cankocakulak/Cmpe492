@@ -24,6 +24,10 @@ final class TaskViewModel: NSObject, ObservableObject {
     @Published var showError: Bool = false
     @Published var restoreInputText: String?
 
+    var completedCount: Int {
+        tasks.filter { $0.stateValue == .completed }.count
+    }
+
     private let context: NSManagedObjectContext
     private let filter: Filter
     private var referenceDate: Date
@@ -90,7 +94,7 @@ final class TaskViewModel: NSObject, ObservableObject {
             try PerformanceMetrics.measure("fetchTasks_initial_\(filterLabel)") {
                 try fetchedResultsController.performFetch()
             }
-            tasks = fetchedResultsController.fetchedObjects ?? []
+            tasks = sortTasks(fetchedResultsController.fetchedObjects ?? [])
         } catch {
             logger.error("Initial fetch failed: \(error.localizedDescription)")
         }
@@ -138,19 +142,85 @@ final class TaskViewModel: NSObject, ObservableObject {
         }
     }
 
+    func updateTaskState(taskID: UUID, to state: TaskState, now: Date = Date()) {
+        guard let task = fetchTask(with: taskID) else {
+            logger.error("Update state failed: task not found")
+            return
+        }
+
+        switch state {
+        case .active:
+            task.markActive(now: now)
+        case .completed:
+            task.markCompleted(now: now)
+        case .notStarted:
+            task.markNotStarted(now: now)
+        }
+
+        do {
+            try context.save()
+        } catch {
+            logger.error("Update state failed: \(error.localizedDescription)")
+            handleSaveFailure(originalText: nil, error: error)
+        }
+    }
+
+    func cycleTaskState(taskID: UUID, now: Date = Date()) {
+        guard let task = fetchTask(with: taskID) else {
+            logger.error("Cycle state failed: task not found")
+            return
+        }
+
+        let nextState: TaskState
+        switch task.stateValue {
+        case .notStarted:
+            nextState = .active
+        case .active:
+            nextState = .completed
+        case .completed:
+            nextState = .notStarted
+        }
+
+        updateTaskState(taskID: taskID, to: nextState, now: now)
+    }
+
     func moveTasks(fromOffsets: IndexSet, toOffset: Int, persist: Bool = true) {
+        guard !fromOffsets.isEmpty,
+              fromOffsets.allSatisfy({ tasks.indices.contains($0) }),
+              let firstIndex = fromOffsets.first else {
+            return
+        }
+
+        let movingState = tasks[firstIndex].stateValue
+        let shouldClampToStateGroup = fromOffsets.allSatisfy { index in
+            tasks[index].stateValue == movingState
+        }
+        var clampedOffset = toOffset
+        if shouldClampToStateGroup {
+            let groupIndices = tasks.indices.filter { tasks[$0].stateValue == movingState }
+            if let start = groupIndices.first, let end = groupIndices.last {
+                clampedOffset = min(max(toOffset, start), end + 1)
+            }
+        }
+
         var reordered = tasks
         PerformanceMetrics.measure("reorderTasks") {
             let movingTasks = fromOffsets.map { reordered[$0] }
             for index in fromOffsets.sorted(by: >) {
                 reordered.remove(at: index)
             }
-            let adjustedOffset = toOffset - fromOffsets.filter { $0 < toOffset }.count
+            let adjustedOffset = clampedOffset - fromOffsets.filter { $0 < clampedOffset }.count
             reordered.insert(contentsOf: movingTasks, at: max(0, min(reordered.count, adjustedOffset)))
         }
-        tasks = reordered
+        let now = Date()
+        for (order, item) in reordered.enumerated() {
+            item.sortOrder = Int32(order)
+            item.updatedAt = now
+        }
+
+        tasks = sortTasks(reordered)
         if persist {
-            persistSortOrderInBackground(taskIDs: reordered.map(\.objectID))
+            persistSortOrderInBackground(taskIDs: tasks.map(\.objectID))
         }
     }
 
@@ -244,7 +314,7 @@ final class TaskViewModel: NSObject, ObservableObject {
             try PerformanceMetrics.measure("fetchTasks_refresh_\(filterLabel)") {
                 try fetchedResultsController.performFetch()
             }
-            tasks = fetchedResultsController.fetchedObjects ?? []
+            tasks = sortTasks(fetchedResultsController.fetchedObjects ?? [])
         } catch {
             logger.error("Refresh failed: \(error.localizedDescription)")
         }
@@ -471,7 +541,38 @@ final class TaskViewModel: NSObject, ObservableObject {
 
 extension TaskViewModel: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tasks = fetchedResultsController.fetchedObjects ?? []
+        tasks = sortTasks(fetchedResultsController.fetchedObjects ?? [])
+    }
+}
+
+private extension TaskViewModel {
+    func sortTasks(_ input: [Task]) -> [Task] {
+        input.sorted { lhs, rhs in
+            let lhsOrder = stateOrder(for: lhs.stateValue)
+            let rhsOrder = stateOrder(for: rhs.stateValue)
+            if lhsOrder != rhsOrder {
+                return lhsOrder < rhsOrder
+            }
+
+            if lhs.sortOrder != rhs.sortOrder {
+                return lhs.sortOrder < rhs.sortOrder
+            }
+
+            let lhsDate = lhs.createdAt ?? Date.distantPast
+            let rhsDate = rhs.createdAt ?? Date.distantPast
+            return lhsDate < rhsDate
+        }
+    }
+
+    func stateOrder(for state: TaskState) -> Int {
+        switch state {
+        case .active:
+            return 0
+        case .notStarted:
+            return 1
+        case .completed:
+            return 2
+        }
     }
 }
 

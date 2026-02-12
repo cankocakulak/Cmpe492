@@ -43,11 +43,22 @@ struct TodayView: View {
                     inputText = ""
                 }
 
+                Text("\(viewModel.completedCount) completed today")
+                    .font(.caption)
+                    .foregroundStyle(Color.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 4)
+
                 List {
                     ForEach(Array(viewModel.tasks.enumerated()), id: \.element.id) { index, task in
                         TaskRow(
                             task: task,
-                            onTap: {},
+                            onTap: {
+                                guard let taskID = task.id else { return }
+                                viewModel.cycleTaskState(taskID: taskID)
+                                impact(.light)
+                            },
                             isDragging: dragCoordinator.draggingTaskID == task.id,
                             onMoveToday: { quickSchedule(task, date: Date(), fromIndex: index, targetView: .today) },
                             onMoveTomorrow: { quickSchedule(task, date: viewModel.tomorrowStartDate, fromIndex: index, targetView: .upcoming) },
@@ -125,7 +136,7 @@ struct TodayView: View {
                         dragCoordinator.endDrag()
                     }
                 ))
-                .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: viewModel.tasks)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: viewModel.tasks)
                 .overlay {
                     if viewModel.tasks.isEmpty {
                         emptyStateView(

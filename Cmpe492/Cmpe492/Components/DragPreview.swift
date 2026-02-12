@@ -18,7 +18,7 @@ struct DragPreview: View {
             .lineLimit(nil)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .frame(minHeight: 44, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
             .background(Color(.systemBackground))
             .opacity(0.7)
             .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 8)

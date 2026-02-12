@@ -84,7 +84,7 @@ struct ContentView: View {
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 20, coordinateSpace: .local)
                         .onEnded { value in
-                            handleSwipe(value)
+                            handleSwipe(value, width: proxy.size.width)
                         }
                 )
                 .onChange(of: selection) { _ in
@@ -141,7 +141,16 @@ struct ContentView: View {
         }
     }
 
-    private func handleSwipe(_ value: DragGesture.Value) {
+    private func handleSwipe(_ value: DragGesture.Value, width: CGFloat) {
+        guard !dragCoordinator.isDragging else { return }
+        let startX = value.startLocation.x
+        let startY = value.startLocation.y
+        let edgeZone: CGFloat = 24
+        let headerZone: CGFloat = 120
+        let isEdgeSwipe = startX <= edgeZone || startX >= width - edgeZone
+        let isHeaderSwipe = startY <= headerZone
+        guard isEdgeSwipe || isHeaderSwipe else { return }
+
         let horizontal = value.translation.width
         let vertical = value.translation.height
         guard abs(horizontal) > abs(vertical), abs(horizontal) > swipeThreshold else { return }

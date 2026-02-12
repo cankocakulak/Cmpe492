@@ -18,15 +18,20 @@ struct TaskRow: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        Text(task.wrappedText)
-            .font(.body)
-            .foregroundStyle(Color.primary)
-            .lineLimit(nil)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .frame(minHeight: 44, alignment: .leading)
-            .opacity(isDragging ? 0.3 : 1.0)
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.4), value: isDragging)
+        let state = task.stateValue
+        let textColor: Color = state == .active ? .blue : (state == .completed ? .secondary : .primary)
+        let backgroundColor: Color = state == .active ? Color.blue.opacity(0.1) : .clear
+        let baseOpacity: Double = state == .completed ? 0.5 : 1.0
+        let dragOpacity: Double = isDragging ? 0.3 : 1.0
+
+        taskText(
+            text: task.wrappedText,
+            state: state,
+            textColor: textColor,
+            backgroundColor: backgroundColor,
+            baseOpacity: baseOpacity,
+            dragOpacity: dragOpacity
+        )
             .contentShape(Rectangle())
             .onTapGesture {
                 onTap()
@@ -58,6 +63,41 @@ struct TaskRow: View {
                     }
                 }
             }
+    }
+
+    @ViewBuilder
+    private func taskText(
+        text: String,
+        state: TaskState,
+        textColor: Color,
+        backgroundColor: Color,
+        baseOpacity: Double,
+        dragOpacity: Double
+    ) -> some View {
+        let baseText = Text(text)
+            .font(.body)
+            .fontWeight(state == .completed ? .regular : .semibold)
+            .foregroundStyle(textColor)
+            .lineLimit(nil)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .opacity(baseOpacity * dragOpacity)
+            .background(backgroundColor)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.4), value: isDragging)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: state)
+
+        if #available(iOS 16.0, *) {
+            baseText.strikethrough(state == .completed, pattern: .solid, color: .secondary)
+        } else {
+            baseText.overlay(alignment: .center) {
+                if state == .completed {
+                    Rectangle()
+                        .fill(Color.secondary)
+                        .frame(height: 1)
+                }
+            }
+        }
     }
 }
 
