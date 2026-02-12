@@ -7,24 +7,27 @@
 
 import SwiftUI
 import CoreData
+import UIKit
 
 struct TodayView: View {
     @StateObject private var viewModel: TaskViewModel
     @State private var inputText: String = ""
+    private let focusTrigger: AnyHashable?
 
     @MainActor
-    init(viewModel: TaskViewModel? = nil) {
+    init(viewModel: TaskViewModel? = nil, focusTrigger: AnyHashable? = nil) {
+        self.focusTrigger = focusTrigger
         if let viewModel = viewModel {
             _viewModel = StateObject(wrappedValue: viewModel)
         } else {
-            _viewModel = StateObject(wrappedValue: TaskViewModel())
+            _viewModel = StateObject(wrappedValue: TaskViewModel(filter: .today))
         }
     }
 
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                PersistentInputField(text: $inputText) {
+                PersistentInputField(text: $inputText, focusTrigger: focusTrigger) {
                     let trimmed = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !trimmed.isEmpty else { return }
                     viewModel.createTask(text: trimmed)
@@ -39,6 +42,13 @@ struct TodayView: View {
                     }
                 }
                 .listStyle(.plain)
+                .overlay {
+                    if viewModel.tasks.isEmpty {
+                        emptyStateView(
+                            message: L10n.emptyToday
+                        )
+                    }
+                }
             }
             .navigationTitle("Today")
             .background(Color(.systemBackground))
@@ -47,6 +57,15 @@ struct TodayView: View {
                 inputText = restored
                 viewModel.clearRestoreInput()
             }
+            .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
+                viewModel.refreshForNewDay()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
+                viewModel.refreshForNewDay()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                viewModel.refreshForNewDay()
+            }
             .alert("Error", isPresented: $viewModel.showError) {
                 Button("OK", role: .cancel) { }
             } message: {
@@ -54,9 +73,19 @@ struct TodayView: View {
             }
         }
     }
+
+    private func emptyStateView(message: String) -> some View {
+        Text(message)
+            .font(.caption)
+            .foregroundStyle(Color.secondary)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .allowsHitTesting(false)
+    }
 }
 
 #Preview {
-    TodayView(viewModel: TaskViewModel(context: PersistenceController.preview.container.viewContext))
+    TodayView(viewModel: TaskViewModel(context: PersistenceController.preview.container.viewContext, filter: .today))
         .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }

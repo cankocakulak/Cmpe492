@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2C073A2E14A04CA2BC122F9F /* TaskEntitySchemaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D518AD1E9EC4EDE9F665ECE /* TaskEntitySchemaTests.swift */; };
 		A66C6CC2EAFF4F8DB76B3F27 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D5C30BE8D04494AFC5CA00 /* PersistenceTests.swift */; };
+		B1C2D3E4F5061728394A5B6C /* ContentViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* ContentViewTests.swift */; };
 		D8A5CFB2CCD04F239C3BD387 /* TaskModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2E9736D139494B9344C46D /* TaskModelTests.swift */; };
 		DC5D82CA641C4053A85969AC /* TaskViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89EA0347C634F53B4E83A82 /* TaskViewModelTests.swift */; };
 /* End PBXBuildFile section */
@@ -25,6 +26,7 @@
 
 /* Begin PBXFileReference section */
 		0D2E9736D139494B9344C46D /* TaskModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskModelTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* ContentViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewTests.swift; sourceTree = "<group>"; };
 		4D518AD1E9EC4EDE9F665ECE /* TaskEntitySchemaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEntitySchemaTests.swift; sourceTree = "<group>"; };
 		B7D5C30BE8D04494AFC5CA00 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
 		C89EA0347C634F53B4E83A82 /* TaskViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModelTests.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				B7D5C30BE8D04494AFC5CA00 /* PersistenceTests.swift */,
+				A1B2C3D4E5F60718293A4B5C /* ContentViewTests.swift */,
 				4D518AD1E9EC4EDE9F665ECE /* TaskEntitySchemaTests.swift */,
 				0D2E9736D139494B9344C46D /* TaskModelTests.swift */,
 				C89EA0347C634F53B4E83A82 /* TaskViewModelTests.swift */,
@@ -192,6 +195,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A66C6CC2EAFF4F8DB76B3F27 /* PersistenceTests.swift in Sources */,
+				B1C2D3E4F5061728394A5B6C /* ContentViewTests.swift in Sources */,
 				2C073A2E14A04CA2BC122F9F /* TaskEntitySchemaTests.swift in Sources */,
 				D8A5CFB2CCD04F239C3BD387 /* TaskModelTests.swift in Sources */,
 				DC5D82CA641C4053A85969AC /* TaskViewModelTests.swift in Sources */,

@@ -107,6 +107,7 @@ GPT-5 (Codex)
 ### Change Log
 
 - 2026-02-12: Added swipe gesture handling to TabView selection with threshold checks.
+- 2026-02-12: Standardized swipe animation duration and added unit test coverage.
 ## Completion Status
 
 - Status set to done.

@@ -121,6 +121,7 @@ GPT-5 (Codex)
 - 2026-02-12: Implemented upcoming filtering/grouping and default scheduledDate logic in TaskViewModel.
 - 2026-02-12: Implemented UpcomingView with grouped List sections and persistent input field.
 - 2026-02-12: Added upcoming filtering, grouping, and default scheduling tests.
+- 2026-02-12: Added day-change/foreground refresh handling to UpcomingView.
 ## Completion Status
 
 - Status set to done.

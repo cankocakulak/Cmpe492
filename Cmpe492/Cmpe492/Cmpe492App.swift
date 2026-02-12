@@ -14,7 +14,7 @@ struct Cmpe492App: App {
 
     var body: some Scene {
         WindowGroup {
-            TodayView()
+            ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }

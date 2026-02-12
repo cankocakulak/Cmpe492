@@ -107,6 +107,7 @@ GPT-5 (Codex)
 ### Change Log
 
 - 2026-02-12: Added empty-state overlays for Inbox, Today, and Upcoming views.
+- 2026-02-12: Added localization scaffolding for empty-state strings.
 ## Completion Status
 
 - Status set to done.

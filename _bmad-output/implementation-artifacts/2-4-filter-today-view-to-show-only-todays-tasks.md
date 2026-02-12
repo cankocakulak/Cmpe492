@@ -115,6 +115,7 @@ GPT-5 (Codex)
 - 2026-02-12: Added today date-range filtering and day-change refresh handling.
 - 2026-02-12: Updated TodayView to use the today-filtered view model and refresh on day change.
 - 2026-02-12: Added today filtering, timezone boundary, and day-change refresh unit tests.
+- 2026-02-12: Added significant time change and foreground refresh handling for TodayView.
 ## Completion Status
 
 - Status set to done.

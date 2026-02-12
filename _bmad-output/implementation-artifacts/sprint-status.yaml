@@ -57,15 +57,15 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Three-View Organization System
-  epic-2: in-progress
-  2-1-implement-three-view-tab-navigation: backlog
-  2-2-build-inbox-view-for-timeless-tasks: backlog
-  2-3-build-upcoming-view-for-future-tasks: backlog
-  2-4-filter-today-view-to-show-only-todays-tasks: backlog
-  2-5-maintain-persistent-input-field-across-all-views: backlog
-  2-6-implement-horizontal-swipe-navigation-between-views: backlog
-  2-7-show-empty-state-messages-for-each-view: backlog
-  2-8-ensure-single-screen-simplicity-no-deep-navigation: backlog
+  epic-2: done
+  2-1-implement-three-view-tab-navigation: done
+  2-2-build-inbox-view-for-timeless-tasks: done
+  2-3-build-upcoming-view-for-future-tasks: done
+  2-4-filter-today-view-to-show-only-todays-tasks: done
+  2-5-maintain-persistent-input-field-across-all-views: done
+  2-6-implement-horizontal-swipe-navigation-between-views: done
+  2-7-show-empty-state-messages-for-each-view: done
+  2-8-ensure-single-screen-simplicity-no-deep-navigation: done
   epic-2-retrospective: optional
 
   # Epic 3: Drag-Based Time Manipulation

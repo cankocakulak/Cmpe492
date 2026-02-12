@@ -12,19 +12,55 @@ import os
 
 @MainActor
 final class TaskViewModel: NSObject, ObservableObject {
+    enum Filter {
+        case all
+        case inbox
+        case upcoming
+        case today
+    }
+
     @Published private(set) var tasks: [Task] = []
     @Published var errorMessage: String?
     @Published var showError: Bool = false
     @Published var restoreInputText: String?
 
     private let context: NSManagedObjectContext
+    private let filter: Filter
+    private var referenceDate: Date
+    private var defaultScheduledDate: Date?
     private let fetchedResultsController: NSFetchedResultsController<Task>
     private let logger = Logger(subsystem: "Cmpe492", category: "TaskViewModel")
 
-    init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext) {
+    init(
+        context: NSManagedObjectContext = PersistenceController.shared.container.viewContext,
+        filter: Filter = .all,
+        referenceDate: Date = Date()
+    ) {
         self.context = context
+        self.filter = filter
+        self.referenceDate = referenceDate
 
         let request: NSFetchRequest<Task> = Task.fetchRequest()
+        switch filter {
+        case .all:
+            defaultScheduledDate = nil
+        case .inbox:
+            request.predicate = NSPredicate(format: "scheduledDate == nil")
+            defaultScheduledDate = nil
+        case .upcoming:
+            let startOfTomorrow = DateHelpers.startOfTomorrow(for: referenceDate)
+            request.predicate = NSPredicate(format: "scheduledDate >= %@", startOfTomorrow as NSDate)
+            defaultScheduledDate = startOfTomorrow
+        case .today:
+            let todayStart = DateHelpers.startOfDay(for: referenceDate)
+            let tomorrowStart = DateHelpers.startOfTomorrow(for: referenceDate)
+            request.predicate = NSPredicate(
+                format: "scheduledDate >= %@ AND scheduledDate < %@",
+                todayStart as NSDate,
+                tomorrowStart as NSDate
+            )
+            defaultScheduledDate = todayStart
+        }
         request.sortDescriptors = [
             NSSortDescriptor(key: "sortOrder", ascending: true),
             NSSortDescriptor(key: "createdAt", ascending: true)
@@ -62,7 +98,7 @@ final class TaskViewModel: NSObject, ObservableObject {
         task.createdAt = now
         task.updatedAt = now
         task.completedAt = nil
-        task.scheduledDate = nil
+        task.scheduledDate = defaultScheduledDate
         task.sortOrder = nextSortOrder()
 
         // Optimistic UI update happens as soon as the task is inserted into the context
@@ -103,6 +139,57 @@ final class TaskViewModel: NSObject, ObservableObject {
 
     func clearRestoreInput() {
         restoreInputText = nil
+    }
+
+    func refreshForNewDay(referenceDate: Date = Date()) {
+        self.referenceDate = referenceDate
+
+        switch filter {
+        case .today:
+            let todayStart = DateHelpers.startOfDay(for: referenceDate)
+            let tomorrowStart = DateHelpers.startOfTomorrow(for: referenceDate)
+            fetchedResultsController.fetchRequest.predicate = NSPredicate(
+                format: "scheduledDate >= %@ AND scheduledDate < %@",
+                todayStart as NSDate,
+                tomorrowStart as NSDate
+            )
+            defaultScheduledDate = todayStart
+        case .upcoming:
+            let startOfTomorrow = DateHelpers.startOfTomorrow(for: referenceDate)
+            fetchedResultsController.fetchRequest.predicate = NSPredicate(
+                format: "scheduledDate >= %@",
+                startOfTomorrow as NSDate
+            )
+            defaultScheduledDate = startOfTomorrow
+        case .all, .inbox:
+            break
+        }
+
+        refresh()
+    }
+
+    func groupedTasksByScheduledDate() -> [TaskSection] {
+        let grouped = Dictionary(grouping: tasks) { task -> Date in
+            let scheduled = task.scheduledDate ?? referenceDate
+            return DateHelpers.startOfDay(for: scheduled)
+        }
+
+        let sortedDates = grouped.keys.sorted()
+        return sortedDates.map { date in
+            let tasksForDate = (grouped[date] ?? []).sorted { lhs, rhs in
+                if lhs.sortOrder != rhs.sortOrder {
+                    return lhs.sortOrder < rhs.sortOrder
+                }
+                let lhsCreated = lhs.createdAt ?? .distantPast
+                let rhsCreated = rhs.createdAt ?? .distantPast
+                return lhsCreated < rhsCreated
+            }
+            return TaskSection(
+                date: date,
+                title: DateHelpers.sectionTitle(for: date, referenceDate: referenceDate),
+                tasks: tasksForDate
+            )
+        }
     }
 
     private func nextSortOrder() -> Int32 {
@@ -153,4 +240,12 @@ extension TaskViewModel: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tasks = fetchedResultsController.fetchedObjects ?? []
     }
+}
+
+struct TaskSection: Identifiable {
+    let date: Date
+    let title: String
+    let tasks: [Task]
+
+    var id: Date { date }
 }

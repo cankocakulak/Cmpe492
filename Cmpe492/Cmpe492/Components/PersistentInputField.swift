@@ -10,6 +10,7 @@ import SwiftUI
 struct PersistentInputField: View {
     @Binding var text: String
     let onSubmit: () -> Void
+    var focusTrigger: AnyHashable? = nil
 
     @FocusState private var isFocused: Bool
 
@@ -30,6 +31,9 @@ struct PersistentInputField: View {
             }
             .onSubmit {
                 onSubmit()
+                isFocused = true
+            }
+            .onChange(of: focusTrigger) { _ in
                 isFocused = true
             }
             .submitLabel(.done)
