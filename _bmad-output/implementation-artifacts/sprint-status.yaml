@@ -44,20 +44,20 @@ development_status:
   epic-1: in-progress
   1-1-initialize-xcode-project-with-core-data: done
   1-2-design-core-data-task-entity-schema: done
-  1-3-create-task-model-and-mvvm-structure: backlog
-  1-4-build-basic-today-view-with-task-list: backlog
-  1-5-implement-persistent-input-field-for-task-capture: backlog
-  1-6-enable-task-creation-via-text-input: backlog
-  1-7-display-tasks-in-list-with-basic-styling: backlog
-  1-8-implement-immediate-data-persistence: backlog
-  1-9-ensure-data-persistence-across-app-launches: backlog
-  1-10-implement-rapid-succession-task-capture: backlog
-  1-11-optimize-task-creation-performance: backlog
-  1-12-handle-task-creation-error-cases: backlog
+  1-3-create-task-model-and-mvvm-structure: ready-for-dev
+  1-4-build-basic-today-view-with-task-list: ready-for-dev
+  1-5-implement-persistent-input-field-for-task-capture: ready-for-dev
+  1-6-enable-task-creation-via-text-input: ready-for-dev
+  1-7-display-tasks-in-list-with-basic-styling: ready-for-dev
+  1-8-implement-immediate-data-persistence: ready-for-dev
+  1-9-ensure-data-persistence-across-app-launches: ready-for-dev
+  1-10-implement-rapid-succession-task-capture: ready-for-dev
+  1-11-optimize-task-creation-performance: ready-for-dev
+  1-12-handle-task-creation-error-cases: ready-for-dev
   epic-1-retrospective: optional
 
   # Epic 2: Three-View Organization System
-  epic-2: backlog
+  epic-2: in-progress
   2-1-implement-three-view-tab-navigation: backlog
   2-2-build-inbox-view-for-timeless-tasks: backlog
   2-3-build-upcoming-view-for-future-tasks: backlog
