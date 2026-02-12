@@ -6,8 +6,30 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2C073A2E14A04CA2BC122F9F /* TaskEntitySchemaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D518AD1E9EC4EDE9F665ECE /* TaskEntitySchemaTests.swift */; };
+		A66C6CC2EAFF4F8DB76B3F27 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D5C30BE8D04494AFC5CA00 /* PersistenceTests.swift */; };
+		D8A5CFB2CCD04F239C3BD387 /* TaskModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2E9736D139494B9344C46D /* TaskModelTests.swift */; };
+		DC5D82CA641C4053A85969AC /* TaskViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89EA0347C634F53B4E83A82 /* TaskViewModelTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		50581CB52C9448D189F9878B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CA5FD2932F3DB9E500363BAE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CA5FD29A2F3DB9E500363BAE;
+			remoteInfo = Cmpe492;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		0D2E9736D139494B9344C46D /* TaskModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskModelTests.swift; sourceTree = "<group>"; };
+		4D518AD1E9EC4EDE9F665ECE /* TaskEntitySchemaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEntitySchemaTests.swift; sourceTree = "<group>"; };
+		B7D5C30BE8D04494AFC5CA00 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
+		C89EA0347C634F53B4E83A82 /* TaskViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModelTests.swift; sourceTree = "<group>"; };
 		CA5FD29B2F3DB9E500363BAE /* Cmpe492.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cmpe492.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E229E19CFDC94A9EAFA699E3 /* Cmpe492Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Cmpe492Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -19,6 +41,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		95EE27F49C524EECA6ED85E0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA5FD2982F3DB9E500363BAE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -33,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				CA5FD29D2F3DB9E500363BAE /* Cmpe492 */,
+				D270601C98D0451F8CF10C01 /* ../Cmpe492Tests */,
 				CA5FD29C2F3DB9E500363BAE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,13 +71,43 @@
 			isa = PBXGroup;
 			children = (
 				CA5FD29B2F3DB9E500363BAE /* Cmpe492.app */,
+				E229E19CFDC94A9EAFA699E3 /* Cmpe492Tests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D270601C98D0451F8CF10C01 /* ../Cmpe492Tests */ = {
+			isa = PBXGroup;
+			children = (
+				B7D5C30BE8D04494AFC5CA00 /* PersistenceTests.swift */,
+				4D518AD1E9EC4EDE9F665ECE /* TaskEntitySchemaTests.swift */,
+				0D2E9736D139494B9344C46D /* TaskModelTests.swift */,
+				C89EA0347C634F53B4E83A82 /* TaskViewModelTests.swift */,
+			);
+			path = ../Cmpe492Tests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		396090AD4B784CA383969EEB /* Cmpe492Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 630F8E0B967243B7B8F719A7 /* Build configuration list for PBXNativeTarget "Cmpe492Tests" */;
+			buildPhases = (
+				25E721DBA8B2485EA6933915 /* Sources */,
+				95EE27F49C524EECA6ED85E0 /* Frameworks */,
+				711F06D382CA42C2AECD764E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				880C295C10F4435AA3AFB7D6 /* PBXTargetDependency */,
+			);
+			name = Cmpe492Tests;
+			productName = Cmpe492Tests;
+			productReference = E229E19CFDC94A9EAFA699E3 /* Cmpe492Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		CA5FD29A2F3DB9E500363BAE /* Cmpe492 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CA5FD2AB2F3DB9E600363BAE /* Build configuration list for PBXNativeTarget "Cmpe492" */;
@@ -80,6 +140,10 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					396090AD4B784CA383969EEB = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = CA5FD29A2F3DB9E500363BAE;
+					};
 					CA5FD29A2F3DB9E500363BAE = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -100,11 +164,19 @@
 			projectRoot = "";
 			targets = (
 				CA5FD29A2F3DB9E500363BAE /* Cmpe492 */,
+				396090AD4B784CA383969EEB /* Cmpe492Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		711F06D382CA42C2AECD764E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA5FD2992F3DB9E500363BAE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +187,17 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		25E721DBA8B2485EA6933915 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A66C6CC2EAFF4F8DB76B3F27 /* PersistenceTests.swift in Sources */,
+				2C073A2E14A04CA2BC122F9F /* TaskEntitySchemaTests.swift in Sources */,
+				D8A5CFB2CCD04F239C3BD387 /* TaskModelTests.swift in Sources */,
+				DC5D82CA641C4053A85969AC /* TaskViewModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA5FD2972F3DB9E500363BAE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,7 +207,61 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		880C295C10F4435AA3AFB7D6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CA5FD29A2F3DB9E500363BAE /* Cmpe492 */;
+			targetProxy = 50581CB52C9448D189F9878B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		032618CA90934B99A36FC827 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QVDHG3AF29;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kantakademi.Cmpe492Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cmpe492.app/Cmpe492";
+			};
+			name = Release;
+		};
+		A0845F07621E45F6B66B1750 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QVDHG3AF29;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kantakademi.Cmpe492Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cmpe492.app/Cmpe492";
+			};
+			name = Debug;
+		};
 		CA5FD2A92F3DB9E600363BAE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -274,7 +411,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -307,7 +444,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -315,6 +452,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		630F8E0B967243B7B8F719A7 /* Build configuration list for PBXNativeTarget "Cmpe492Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0845F07621E45F6B66B1750 /* Debug */,
+				032618CA90934B99A36FC827 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		CA5FD2962F3DB9E500363BAE /* Build configuration list for PBXProject "Cmpe492" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

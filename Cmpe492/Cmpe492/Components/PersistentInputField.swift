@@ -25,6 +25,9 @@ struct PersistentInputField: View {
                     isFocused = true
                 }
             }
+            .onTapGesture {
+                isFocused = true
+            }
             .onSubmit {
                 onSubmit()
                 isFocused = true

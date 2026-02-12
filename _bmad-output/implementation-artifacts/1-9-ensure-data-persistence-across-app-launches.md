@@ -1,6 +1,6 @@
 # Story 1.9: Ensure Data Persistence Across App Launches
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -27,9 +27,9 @@ So that my data is reliable and I can trust the system.
 
 
 ## Tasks / Subtasks
-- [ ] Verify TaskViewModel fetch is called on app start.
-- [ ] Ensure list renders in sortOrder sequence after relaunch.
-- [ ] Validate app launch time remains under 1 second.
+- [x] Verify TaskViewModel fetch is called on app start.
+- [x] Ensure list renders in sortOrder sequence after relaunch.
+- [x] Validate app launch time remains under 1 second.
 
 ## Dev Notes
 
@@ -123,10 +123,11 @@ N/A
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created.
-- Status set to ready-for-dev.
+- TaskViewModel performs initial fetch with sortOrder/createdAt ordering on launch.
+- Fetch uses batch size for efficiency; list renders in sort order after relaunch.
+- Manual persistence/launch-time verification completed on device/simulator.
 
 ### File List
 
-- Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift (update)
-- Cmpe492/Cmpe492/Views/TodayView.swift (update)
+- `Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift` (update)
+- `Cmpe492/Cmpe492/Views/TodayView.swift` (update)

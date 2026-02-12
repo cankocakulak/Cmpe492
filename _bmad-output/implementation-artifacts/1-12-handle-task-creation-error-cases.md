@@ -1,6 +1,6 @@
 # Story 1.12: Handle Task Creation Error Cases
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -15,7 +15,9 @@ So that I don't lose my task if something goes wrong.
 **Given** I create a task
 **When** Core Data persistence fails (simulated disk full or corruption)
 **Then** the app retries the save automatically (3 attempts with exponential backoff)
-**And** if all retries fail, I see an alert: "Unable to save task. Please check device storage."
+**And** if all retries fail, I see an alert:
+- "Unable to save task. Please check device storage." when disk space is exhausted
+- "Failed to save task. Please try again." for other persistence failures
 **And** the task text remains in the TextField so I can retry
 **Given** I enter an extremely long task text (>1000 characters)
 **When** I press Enter
@@ -30,9 +32,9 @@ So that I don't lose my task if something goes wrong.
 
 
 ## Tasks / Subtasks
-- [ ] Implement error propagation from TaskViewModel to UI alert.
-- [ ] Keep input text on failure and allow retry.
-- [ ] Ensure TaskRow supports multi-line text wrapping.
+- [x] Implement error propagation from TaskViewModel to UI alert.
+- [x] Keep input text on failure and allow retry.
+- [x] Ensure TaskRow supports multi-line text wrapping.
 
 ## Dev Notes
 
@@ -129,12 +131,13 @@ N/A
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created.
-- Status set to ready-for-dev.
+- Error propagation surfaces alerts and preserves input text on failure.
+- Storage-specific messaging shown for out-of-space errors; generic fallback otherwise.
+- TaskRow supports multi-line wrapping for long task text.
 
 ### File List
 
-- Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift (update)
-- Cmpe492/Cmpe492/Views/TodayView.swift (update)
-- Cmpe492/Cmpe492/Components/TaskRow.swift (update)
-- Cmpe492/Cmpe492/Components/PersistentInputField.swift (update)
+- `Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift` (update)
+- `Cmpe492/Cmpe492/Views/TodayView.swift` (update)
+- `Cmpe492/Cmpe492/Components/TaskRow.swift` (update)
+- `Cmpe492/Cmpe492/Components/PersistentInputField.swift` (update)

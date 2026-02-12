@@ -1,6 +1,6 @@
 # Story 1.6: Enable Task Creation via Text Input
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -31,10 +31,10 @@ So that I can capture tasks in under 3 seconds with zero friction.
 
 
 ## Tasks / Subtasks
-- [ ] Add create-task logic to TaskViewModel.
-- [ ] Wire PersistentInputField onSubmit to create task.
-- [ ] Ensure TextField clears and retains focus after submit.
-- [ ] Ensure new tasks appear at end of list using sortOrder.
+- [x] Add create-task logic to TaskViewModel.
+- [x] Wire PersistentInputField onSubmit to create task.
+- [x] Ensure TextField clears and retains focus after submit.
+- [x] Ensure new tasks appear at end of list using sortOrder.
 
 ## Dev Notes
 
@@ -131,11 +131,13 @@ N/A
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created.
-- Status set to ready-for-dev.
+- Task creation wired through TaskViewModel with required field defaults and sortOrder handling.
+- PersistentInputField submit clears text and re-focuses for rapid entry.
+- Unit tests cover createTask behavior; manual input/UX verification completed.
 
 ### File List
 
-- Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift (update)
-- Cmpe492/Cmpe492/Components/PersistentInputField.swift (update)
-- Cmpe492/Cmpe492/Views/TodayView.swift (update)
+- `Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift` (update)
+- `Cmpe492/Cmpe492/Components/PersistentInputField.swift` (update)
+- `Cmpe492/Cmpe492/Views/TodayView.swift` (update)
+- `Cmpe492Tests/TaskViewModelTests.swift` (update)

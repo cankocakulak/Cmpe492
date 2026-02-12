@@ -1,6 +1,6 @@
 # Story 1.7: Display Tasks in List with Basic Styling
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -28,9 +28,9 @@ So that I can quickly scan my tasks without visual clutter.
 
 
 ## Tasks / Subtasks
-- [ ] Create `Components/TaskRow.swift`.
-- [ ] Update TodayView list to use TaskRow for each task.
-- [ ] Verify padding, separators, and smooth scrolling.
+- [x] Create `Components/TaskRow.swift`.
+- [x] Update TodayView list to use TaskRow for each task.
+- [x] Verify padding, separators, and smooth scrolling.
 
 ## Dev Notes
 
@@ -125,10 +125,13 @@ N/A
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created.
-- Status set to ready-for-dev.
+- TaskRow renders task text with required font, color, padding, and tappable area.
+- TodayView list uses TaskRow and separator tinting.
+- List row insets are zeroed to preserve exact 16pt/12pt padding.
+- Manual visual/scroll verification completed on device/simulator.
 
 ### File List
 
-- Cmpe492/Cmpe492/Components/TaskRow.swift (new)
-- Cmpe492/Cmpe492/Views/TodayView.swift (update)
+- `Cmpe492/Cmpe492/Components/TaskRow.swift` (new)
+- `Cmpe492/Cmpe492/Views/TodayView.swift` (update)
+- `Cmpe492Tests/TaskViewModelTests.swift` (touched in working tree; not part of Story 1.7 implementation)

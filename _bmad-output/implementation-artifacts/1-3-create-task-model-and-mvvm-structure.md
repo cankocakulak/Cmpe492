@@ -1,6 +1,6 @@
 # Story 1.3: Create Task Model and MVVM Structure
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -28,13 +28,13 @@ so that business logic is separated from the UI and the codebase is testable and
 
 ## Tasks / Subtasks
 
-- [ ] Create MVVM folder structure in the app target: `Models/`, `Views/`, `ViewModels/` (AC: folder structure)
-- [ ] Move `ContentView.swift` into `Views/` (Xcode group + filesystem) without behavior changes (AC: folder structure)
-- [ ] Add `Models/Task+Extensions.swift` with `TaskState` enum and computed properties (AC: Task extension)
-- [ ] Implement Task state transition helpers (set `state`, `updatedAt`, `completedAt` correctly) (AC: Task extension)
-- [ ] Implement `ViewModels/TaskViewModel.swift` as `ObservableObject` with `@Published var tasks: [Task]` and CRUD methods (AC: TaskViewModel)
-- [ ] Wire `TaskViewModel` to `PersistenceController` and main `NSManagedObjectContext` (AC: TaskViewModel)
-- [ ] Add unit tests for Task extension + TaskViewModel CRUD using in-memory Core Data (AC: code compiles, behavior verified)
+- [x] Create MVVM folder structure in the app target: `Models/`, `Views/`, `ViewModels/` (AC: folder structure)
+- [x] Move `ContentView.swift` into `Views/` (Xcode group + filesystem) without behavior changes (AC: folder structure)
+- [x] Add `Models/Task+Extensions.swift` with `TaskState` enum and computed properties (AC: Task extension)
+- [x] Implement Task state transition helpers (set `state`, `updatedAt`, `completedAt` correctly) (AC: Task extension)
+- [x] Implement `ViewModels/TaskViewModel.swift` as `ObservableObject` with `@Published var tasks: [Task]` and CRUD methods (AC: TaskViewModel)
+- [x] Wire `TaskViewModel` to `PersistenceController` and main `NSManagedObjectContext` (AC: TaskViewModel)
+- [x] Add unit tests for Task extension + TaskViewModel CRUD using in-memory Core Data (AC: code compiles, behavior verified)
 
 ## Dev Notes
 
@@ -137,8 +137,10 @@ N/A
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created.
-- Status set to ready-for-dev.
+- Implemented MVVM scaffolding with Task helpers, state transitions, and CRUD view model.
+- Task already conforms to `Identifiable`/`Hashable` via Core Data generated class; no extra conformance needed.
+- Added in-memory Core Data unit tests and wired the test target/scheme for xcodebuild.
+- Tests passed locally on iPhone 17 Pro simulator (iOS 26.2) per user run.
 
 ### File List
 
@@ -147,3 +149,5 @@ N/A
 - `Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift` (new)
 - `Cmpe492Tests/TaskModelTests.swift` (new)
 - `Cmpe492Tests/TaskViewModelTests.swift` (new)
+- `Cmpe492/Cmpe492.xcodeproj/project.pbxproj` (update: test target + sources)
+- `Cmpe492/Cmpe492.xcodeproj/xcshareddata/xcschemes/Cmpe492.xcscheme` (update: test bundle)

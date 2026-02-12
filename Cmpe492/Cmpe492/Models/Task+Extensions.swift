@@ -72,4 +72,3 @@ extension Task {
         updatedAt = now
     }
 }
-

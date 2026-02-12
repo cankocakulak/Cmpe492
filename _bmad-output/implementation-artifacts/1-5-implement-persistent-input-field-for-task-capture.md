@@ -1,6 +1,6 @@
 # Story 1.5: Implement Persistent Input Field for Task Capture
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -24,9 +24,9 @@ So that I can quickly capture new tasks without extra navigation.
 
 
 ## Tasks / Subtasks
-- [ ] Create `Components/PersistentInputField.swift`.
-- [ ] Integrate PersistentInputField into TodayView above the list.
-- [ ] Ensure keyboard focuses on appear and returns on tap.
+- [x] Create `Components/PersistentInputField.swift`.
+- [x] Integrate PersistentInputField into TodayView above the list.
+- [x] Ensure keyboard focuses on appear and returns on tap.
 
 ## Dev Notes
 
@@ -122,10 +122,11 @@ N/A
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created.
-- Status set to ready-for-dev.
+- Implemented PersistentInputField with placeholder, styling, padding, and focus management (explicit tap-to-refocus).
+- Integrated input field at the top of TodayView above the task list.
+- Manual focus/scroll behavior verified on device/simulator.
 
 ### File List
 
-- Cmpe492/Cmpe492/Components/PersistentInputField.swift (new)
-- Cmpe492/Cmpe492/Views/TodayView.swift (update)
+- `Cmpe492/Cmpe492/Components/PersistentInputField.swift` (new)
+- `Cmpe492/Cmpe492/Views/TodayView.swift` (update)

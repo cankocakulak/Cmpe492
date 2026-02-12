@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  Cmpe492
 //
-//  Created by Murat Can Kocakulak on 12.02.2026.
+//  Restored for Story 1.1 baseline project structure compliance.
 //
 
 import SwiftUI

@@ -34,6 +34,7 @@ struct TodayView: View {
                 List {
                     ForEach(viewModel.tasks) { task in
                         TaskRow(task: task)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                             .listRowSeparatorTint(Color(.separator))
                     }
                 }

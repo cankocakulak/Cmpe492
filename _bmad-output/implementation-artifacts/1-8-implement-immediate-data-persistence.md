@@ -1,6 +1,6 @@
 # Story 1.8: Implement Immediate Data Persistence
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -24,9 +24,9 @@ So that I never lose data and can close the app immediately after capture.
 
 
 ## Tasks / Subtasks
-- [ ] Add save-with-retry helper in TaskViewModel.
-- [ ] Update createTask to use retry logic and optimistic UI.
-- [ ] Expose error state for UI alert in TodayView.
+- [x] Add save-with-retry helper in TaskViewModel.
+- [x] Update createTask to use retry logic and optimistic UI.
+- [x] Expose error state for UI alert in TodayView.
 
 ## Dev Notes
 
@@ -121,10 +121,12 @@ N/A
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created.
-- Status set to ready-for-dev.
+- Implemented save-with-retry with exponential backoff and optimistic UI (save executes on context queue).
+- TodayView shows error alert when persistence fails and restores input text.
+- Added test covering retry failure path and surfaced error state.
 
 ### File List
 
-- Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift (update)
-- Cmpe492/Cmpe492/Views/TodayView.swift (update)
+- `Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift` (update)
+- `Cmpe492/Cmpe492/Views/TodayView.swift` (update)
+- `Cmpe492Tests/TaskViewModelTests.swift` (update)

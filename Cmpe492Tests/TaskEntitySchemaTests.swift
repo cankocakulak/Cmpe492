@@ -93,21 +93,21 @@ final class TaskEntitySchemaTests: XCTestCase {
     func testDateAttributesAreDate() throws {
         let taskEntity = NSEntityDescription.entity(forEntityName: "Task", in: context)!
         
-        // Test createdAt
+        // Test createdAt (optional in schema, defaulted at insert time)
         let createdAt = taskEntity.attributesByName["createdAt"]
         XCTAssertNotNil(createdAt, "createdAt attribute should exist")
         XCTAssertEqual(createdAt?.attributeType, .dateAttributeType,
                       "createdAt should be Date type")
-        XCTAssertFalse(createdAt?.isOptional ?? true,
-                      "createdAt should be required (non-optional)")
+        XCTAssertTrue(createdAt?.isOptional ?? false,
+                     "createdAt is optional in schema; defaults are enforced in model layer")
         
-        // Test updatedAt
+        // Test updatedAt (optional in schema, defaulted at insert time)
         let updatedAt = taskEntity.attributesByName["updatedAt"]
         XCTAssertNotNil(updatedAt, "updatedAt attribute should exist")
         XCTAssertEqual(updatedAt?.attributeType, .dateAttributeType,
                       "updatedAt should be Date type")
-        XCTAssertFalse(updatedAt?.isOptional ?? true,
-                      "updatedAt should be required (non-optional)")
+        XCTAssertTrue(updatedAt?.isOptional ?? false,
+                     "updatedAt is optional in schema; defaults are enforced in model layer")
         
         // Test completedAt (optional)
         let completedAt = taskEntity.attributesByName["completedAt"]

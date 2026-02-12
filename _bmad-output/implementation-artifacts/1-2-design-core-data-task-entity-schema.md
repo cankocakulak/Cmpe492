@@ -623,7 +623,7 @@ XML validation: Passed (verified with xmllint)
    - Set model version identifier to "1.0"
    - Enabled CloudKit support (usedWithCloudKit="true") for Phase 3 readiness
    - Set Code Generation to "Class Definition" (Xcode auto-generates NSManagedObject)
-   - All required attributes marked as non-optional
+   - All required attributes marked as non-optional (except dates; see note below)
    - All optional attributes correctly marked as optional
 
 4. **Set Up Performance Indexes**
@@ -644,6 +644,10 @@ XML validation: Passed (verified with xmllint)
    - Updated to use Task entity instead of Item
    - This file will be replaced in Story 1.4 (TodayView)
    - Allows project to build successfully
+
+7. **Documented Runtime Defaults**
+   - `Task.awakeFromInsert` applies current timestamps and ID defaults at insert time
+   - Schema placeholder defaults are overridden by model-layer defaults
 
 7. **Created Comprehensive Tests**
    - TaskEntitySchemaTests.swift with 15 test cases
@@ -678,7 +682,7 @@ XML validation: Passed (verified with xmllint)
 **Modified Files:**
 - `Cmpe492/Cmpe492/Cmpe492.xcdatamodeld/Cmpe492.xcdatamodel/contents` - Replaced Item entity with Task entity, added all attributes and indexes
 - `Cmpe492/Cmpe492/Persistence.swift` - Updated preview code to use Task entity with sample data
-- `Cmpe492/Cmpe492/ContentView.swift` - Updated to use Task entity (temporary until Story 1.4)
+- `Cmpe492/Cmpe492/Views/ContentView.swift` - Updated to use Task entity (temporary until Story 1.4)
 - `_bmad-output/implementation-artifacts/sprint-status.yaml` - Updated story status: ready-for-dev → in-progress → review
 
 **Created Files:**
@@ -779,3 +783,6 @@ Performed adversarial code review and found **10 issues** (3 Critical, 4 Medium,
   - Build and run tests to verify all 22 tests pass
 
 **Review Status:** ✅ **STORY APPROVED FOR DONE STATUS**
+**Note on Date Defaults:**
+- `createdAt` and `updatedAt` are set to optional in the schema because `momc` requires a default value for non-optional Date attributes but does not accept a valid model-level default.
+- Runtime defaults are enforced in `Task.awakeFromInsert()` so these fields are always populated for new tasks.

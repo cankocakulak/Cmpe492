@@ -112,21 +112,24 @@ final class TaskViewModel: NSObject, ObservableObject {
 
     private func saveWithRetry(task: Task, originalText: String, attempt: Int) {
         let attemptLabel = "saveAttempt_\(attempt)"
-        PerformanceMetrics.measure(attemptLabel) {
-            do {
-                try context.save()
-            } catch {
-                logger.error("Save attempt \(attempt) failed: \(error.localizedDescription)")
-                if attempt < 3 {
-                    let delaySeconds = pow(2.0, Double(attempt - 1)) * 0.2
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delaySeconds) { [weak self] in
-                        self?.saveWithRetry(task: task, originalText: originalText, attempt: attempt + 1)
+        context.perform { [weak self] in
+            guard let self else { return }
+            PerformanceMetrics.measure(attemptLabel) {
+                do {
+                    try self.context.save()
+                } catch {
+                    self.logger.error("Save attempt \(attempt) failed: \(error.localizedDescription)")
+                    if attempt < 3 {
+                        let delaySeconds = pow(2.0, Double(attempt - 1)) * 0.2
+                        DispatchQueue.main.asyncAfter(deadline: .now() + delaySeconds) { [weak self] in
+                            self?.saveWithRetry(task: task, originalText: originalText, attempt: attempt + 1)
+                        }
+                    } else {
+                        // Roll back the failed insert and surface the error to the UI
+                        self.context.delete(task)
+                        self.context.processPendingChanges()
+                        self.handleSaveFailure(originalText: originalText, error: error)
                     }
-                } else {
-                    // Roll back the failed insert and surface the error to the UI
-                    self.context.delete(task)
-                    self.context.processPendingChanges()
-                    self.handleSaveFailure(originalText: originalText, error: error)
                 }
             }
         }

@@ -1,6 +1,6 @@
 # Story 1.4: Build Basic Today View with Task List
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -23,9 +23,9 @@ So that I can immediately view my tasks without navigation.
 
 
 ## Tasks / Subtasks
-- [ ] Create `Views/TodayView.swift` with a basic SwiftUI List.
-- [ ] Update `Cmpe492App.swift` to show TodayView on launch.
-- [ ] Ensure navigation title is visible and list is empty when no tasks exist.
+- [x] Create `Views/TodayView.swift` with a basic SwiftUI List.
+- [x] Update `Cmpe492App.swift` to show TodayView on launch.
+- [x] Ensure navigation title is visible and list is empty when no tasks exist.
 
 ## Dev Notes
 
@@ -120,10 +120,12 @@ N/A
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created.
-- Status set to ready-for-dev.
+- TodayView is the default launch screen with NavigationView, title, and list scaffold.
+- Background uses system background and list style is plain.
+- TodayView now also hosts the persistent input field from later stories; base list scaffold remains intact.
+- Manual smoke test completed on device/simulator.
 
 ### File List
 
-- Cmpe492/Cmpe492/Views/TodayView.swift (new)
-- Cmpe492/Cmpe492/Cmpe492App.swift (update)
+- `Cmpe492/Cmpe492/Views/TodayView.swift` (new)
+- `Cmpe492/Cmpe492/Cmpe492App.swift` (update)

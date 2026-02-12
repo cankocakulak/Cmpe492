@@ -1,6 +1,6 @@
 # Story 1.11: Optimize Task Creation Performance
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -26,9 +26,9 @@ So that the "instant capture" user experience is maintained.
 
 
 ## Tasks / Subtasks
-- [ ] Add basic timing instrumentation around createTask and save.
-- [ ] Ensure save occurs on the context queue and UI updates remain <100ms.
-- [ ] Tune fetch request with batch size and appropriate sort descriptors.
+- [x] Add basic timing instrumentation around createTask and save.
+- [x] Ensure save occurs on the context queue and UI updates remain <100ms.
+- [x] Tune fetch request with batch size and appropriate sort descriptors.
 
 ## Dev Notes
 
@@ -122,10 +122,12 @@ N/A
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created.
-- Status set to ready-for-dev.
+- Added lightweight performance timing via PerformanceMetrics and save instrumentation (context.perform queue save).
+- Fetch request uses batch size with sortOrder/createdAt descriptors to keep list responsive.
+- Added XCTest measure block for createTask; manual load testing completed.
 
 ### File List
 
-- Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift (update)
-- Cmpe492/Cmpe492/Utilities/PerformanceMetrics.swift (new, optional)
+- `Cmpe492/Cmpe492/ViewModels/TaskViewModel.swift` (update)
+- `Cmpe492/Cmpe492/Utilities/PerformanceMetrics.swift` (new)
+- `Cmpe492Tests/TaskViewModelTests.swift` (update)

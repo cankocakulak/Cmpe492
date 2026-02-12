@@ -231,6 +231,8 @@ No debugging required - standard Xcode project initialization completed successf
 - Standard Xcode project structure ready for MVVM architecture (Story 1.3)
 - Core Data model file (Cmpe492.xcdatamodeld) ready for schema design (Story 1.2)
 - Version control properly configured with platform-appropriate ignores
+- Swift language version explicitly set to 5.9 (meets 5.5+ requirement)
+- Restored baseline ContentView.swift (now located under Views/ as of Story 1.3)
 
 **Next Story:** 1.2 - Design Core Data Task Entity Schema
 
@@ -248,6 +250,7 @@ No debugging required - standard Xcode project initialization completed successf
 **Modified Files (Git commits 1febee7, 03d1fa3, 056cb0a, abf6eb0):**
 - `.gitignore` - Added comprehensive Xcode ignore patterns (xcuserdata, DerivedData, build/, etc.)
 - `Cmpe492/Cmpe492.xcodeproj/project.pbxproj` - Xcode project configuration (deployment target set to iOS 15.0)
+- `Cmpe492/Cmpe492/Views/ContentView.swift` - Restored baseline SwiftUI entry view (moved into Views/ in Story 1.3)
 - `Cmpe492/Cmpe492/Persistence.swift` - Cleaned up template error handling comments (code review fix)
 - `_bmad-output/implementation-artifacts/1-1-initialize-xcode-project-with-core-data.md` - This story file
 - `_bmad-output/implementation-artifacts/sprint-status.yaml` - Sprint tracking updates
@@ -262,7 +265,6 @@ No debugging required - standard Xcode project initialization completed successf
 
 **Pre-Existing Files (Created in commit e37f9ba before Story 1.1):**
 - `Cmpe492/Cmpe492/Cmpe492App.swift` - App entry point with @main
-- `Cmpe492/Cmpe492/ContentView.swift` - Default SwiftUI view (will be replaced with TodayView in Story 1.4)
 - `Cmpe492/Cmpe492/Persistence.swift` - Core Data stack with NSPersistentContainer (updated with cleaner comments)
 - `Cmpe492/Cmpe492/Cmpe492.xcdatamodeld/` - Core Data model file (empty schema, to be populated in Story 1.2)
 - `Cmpe492/Cmpe492/Assets.xcassets/` - Asset catalog for images, colors, app icon
