@@ -62,6 +62,8 @@ struct UpcomingView: View {
                                         isDragging: dragCoordinator.draggingTaskID != nil && dragCoordinator.draggingTaskID == task.id,
                                         onMoveToday: { quickSchedule(task, date: Date(), fromIndex: index, targetView: .today) },
                                         onMoveTomorrow: { quickSchedule(task, date: viewModel.tomorrowStartDate, fromIndex: index, targetView: .upcoming) },
+                                        onMoveInbox: { quickSchedule(task, date: nil, fromIndex: index, targetView: .inbox) },
+                                        hideMoveUpcoming: true,
                                         onDelete: { performDeleteAction { viewModel.deleteTask(task) } }
                                     )
                                     .frame(maxWidth: .infinity, alignment: .leading)

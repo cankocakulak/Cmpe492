@@ -47,7 +47,7 @@ struct TodayView: View {
                     .font(.caption)
                     .foregroundStyle(Color.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 20)
                     .padding(.vertical, 4)
 
                 List {
@@ -63,6 +63,8 @@ struct TodayView: View {
                                 isDragging: dragCoordinator.draggingTaskID != nil && dragCoordinator.draggingTaskID == task.id,
                                 onMoveToday: { quickSchedule(task, date: Date(), fromIndex: index, targetView: .today) },
                                 onMoveTomorrow: { quickSchedule(task, date: viewModel.tomorrowStartDate, fromIndex: index, targetView: .upcoming) },
+                                onMoveInbox: { quickSchedule(task, date: nil, fromIndex: index, targetView: .inbox) },
+                                hideMoveToday: true,
                                 onDelete: { performDeleteAction { viewModel.deleteTask(task) } }
                             )
                             .frame(maxWidth: .infinity, alignment: .leading)

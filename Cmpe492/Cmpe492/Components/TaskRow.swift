@@ -14,6 +14,9 @@ struct TaskRow: View {
     var isDragging: Bool = false
     var onMoveToday: (() -> Void)?
     var onMoveTomorrow: (() -> Void)?
+    var onMoveInbox: (() -> Void)?
+    var hideMoveToday: Bool = false
+    var hideMoveUpcoming: Bool = false
     var onDelete: (() -> Void)?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -46,7 +49,7 @@ struct TaskRow: View {
                 }
             }
             .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                if let onMoveToday {
+                if let onMoveToday, !hideMoveToday {
                     Button {
                         onMoveToday()
                     } label: {
@@ -55,13 +58,22 @@ struct TaskRow: View {
                     .tint(.blue)
                 }
 
-                if let onMoveTomorrow {
+                if let onMoveTomorrow, !hideMoveUpcoming {
                     Button {
                         onMoveTomorrow()
                     } label: {
-                        Label("Tomorrow", systemImage: "calendar")
+                        Label("Upcoming", systemImage: "calendar")
                     }
                     .tint(.green)
+                }
+
+                if let onMoveInbox {
+                    Button {
+                        onMoveInbox()
+                    } label: {
+                        Label("Inbox", systemImage: "tray")
+                    }
+                    .tint(.gray)
                 }
             }
     }
@@ -80,7 +92,7 @@ struct TaskRow: View {
             .fontWeight(state == .completed ? .regular : .semibold)
             .foregroundStyle(textColor)
             .lineLimit(nil)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
             .opacity(baseOpacity * dragOpacity)
