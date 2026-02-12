@@ -1,6 +1,6 @@
 # Story 1.1: Initialize Xcode Project with Core Data
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -26,21 +26,21 @@ So that the technical foundation is ready for building the task management app.
 
 ## Tasks / Subtasks
 
-- [ ] Create new Xcode iOS App project with SwiftUI + Core Data (AC: All)
-  - [ ] Open Xcode → File → New → Project → iOS → App
-  - [ ] Configure: Product Name: Cmpe492, Interface: SwiftUI, Language: Swift, Storage: Core Data
-  - [ ] Set iOS Deployment Target to 15.0
-  - [ ] Verify project structure includes Cmpe492App.swift, ContentView.swift, Persistence.swift, Cmpe492.xcdatamodeld
-- [ ] Verify project builds and runs successfully (AC: build without errors)
-  - [ ] Build the project (Cmd+B)
-  - [ ] Run in Simulator (iPhone 14 or newer)
-  - [ ] Confirm no build errors or warnings
-  - [ ] Confirm Core Data stack initializes without crashes
-- [ ] Initialize Git repository with Xcode .gitignore (AC: Git repository initialized)
-  - [ ] Run `git init` in project directory
-  - [ ] Create .gitignore for Xcode (use standard Xcode template)
-  - [ ] Add initial commit: "Initial Xcode SwiftUI project with Core Data"
-  - [ ] Verify .xcodeproj, DerivedData, and build artifacts are ignored
+- [x] Create new Xcode iOS App project with SwiftUI + Core Data (AC: All)
+  - [x] Open Xcode → File → New → Project → iOS → App
+  - [x] Configure: Product Name: Cmpe492, Interface: SwiftUI, Language: Swift, Storage: Core Data
+  - [x] Set iOS Deployment Target to 15.0
+  - [x] Verify project structure includes Cmpe492App.swift, ContentView.swift, Persistence.swift, Cmpe492.xcdatamodeld
+- [x] Verify project builds and runs successfully (AC: build without errors)
+  - [x] Build the project (Cmd+B)
+  - [x] Run in Simulator (iPhone 14 or newer)
+  - [x] Confirm no build errors or warnings
+  - [x] Confirm Core Data stack initializes without crashes
+- [x] Initialize Git repository with Xcode .gitignore (AC: Git repository initialized)
+  - [x] Run `git init` in project directory (repository was already initialized)
+  - [x] Create .gitignore for Xcode (added comprehensive Xcode entries to existing .gitignore)
+  - [x] Add initial commit: "Initial Xcode SwiftUI project with Core Data" (commit 1febee7)
+  - [x] Verify .xcodeproj, DerivedData, and build artifacts are ignored
 
 ## Dev Notes
 
@@ -194,23 +194,57 @@ Cmpe492/
 
 ### Agent Model Used
 
-_To be filled by dev agent: Model name and version used for implementation_
+Claude Sonnet 4.5 (via Cursor)
 
 ### Debug Log References
 
-_To be filled by dev agent during implementation_
+No debugging required - standard Xcode project initialization completed successfully.
 
 ### Completion Notes List
 
-_To be filled by dev agent with implementation notes, challenges, and decisions_
+✅ **Story 1.1 Implementation Complete**
+
+**Implemented:**
+1. Created new Xcode iOS App project with SwiftUI + Core Data support
+   - Product Name: Cmpe492
+   - Interface: SwiftUI (declarative UI framework)
+   - Language: Swift 5.5+
+   - Storage: Core Data enabled during project creation
+   - iOS Deployment Target: 15.0
+   - Generated standard project structure with all required files
+
+2. Verified project builds and runs successfully
+   - Build completed without errors or warnings
+   - App launched successfully in iOS Simulator
+   - Core Data stack initializes correctly via PersistenceController
+   - No crashes or initialization errors
+
+3. Initialized Git version control
+   - Git repository was already initialized (existing repo)
+   - Added comprehensive Xcode .gitignore entries to existing .gitignore
+   - Removed user-specific state file (UserInterfaceState.xcuserstate) from tracking
+   - Created initial commit: "Initial Xcode SwiftUI project with Core Data" (commit 1febee7)
+   - Verified proper ignore patterns for build artifacts and user-specific files
+
+**Technical Foundation Established:**
+- SwiftUI + Core Data template provides NSPersistentContainer boilerplate
+- Standard Xcode project structure ready for MVVM architecture (Story 1.3)
+- Core Data model file (Cmpe492.xcdatamodeld) ready for schema design (Story 1.2)
+- Version control properly configured with platform-appropriate ignores
+
+**Next Story:** 1.2 - Design Core Data Task Entity Schema
 
 ### File List
 
-_To be filled by dev agent with all files created or modified:_
-- Cmpe492App.swift
-- ContentView.swift
-- Persistence.swift
-- Cmpe492.xcdatamodeld
-- Assets.xcassets
-- Info.plist
-- .gitignore
+**Created/Modified Files:**
+- `.gitignore` - Added comprehensive Xcode ignore patterns (xcuserdata, DerivedData, build/, etc.)
+- `Cmpe492/Cmpe492.xcodeproj/project.pbxproj` - Xcode project configuration file
+- `Cmpe492/Cmpe492/Cmpe492App.swift` - App entry point with @main
+- `Cmpe492/Cmpe492/ContentView.swift` - Default SwiftUI view (will be replaced with TodayView in Story 1.4)
+- `Cmpe492/Cmpe492/Persistence.swift` - Core Data stack with NSPersistentContainer
+- `Cmpe492/Cmpe492/Cmpe492.xcdatamodeld/` - Core Data model file (empty schema, to be populated in Story 1.2)
+- `Cmpe492/Cmpe492/Assets.xcassets/` - Asset catalog for images, colors, app icon
+- `Cmpe492/Cmpe492/Preview Content/` - SwiftUI preview assets
+
+**Removed from Git Tracking:**
+- `Cmpe492/Cmpe492.xcodeproj/project.xcworkspace/xcuserdata/mcan.xcuserdatad/UserInterfaceState.xcuserstate` - User-specific state file (now properly ignored)
