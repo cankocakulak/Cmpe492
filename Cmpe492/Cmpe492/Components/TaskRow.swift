@@ -36,7 +36,7 @@ struct TaskRow: View {
             backgroundColor: backgroundColor,
             baseOpacity: baseOpacity,
             dragOpacity: dragOpacity,
-            trailingPadding: (onReorderDragChanged == nil && onReorderDragEnded == nil) ? 20 : 54
+            trailingPadding: (onReorderDragChanged == nil && onReorderDragEnded == nil) ? 20 : 76
         )
             .contentShape(Rectangle())
             .onTapGesture {
@@ -47,9 +47,9 @@ struct TaskRow: View {
                     Image(systemName: "line.3.horizontal")
                         .font(.body.weight(.semibold))
                         .foregroundStyle(Color.secondary)
-                        .frame(width: 40, height: 44)
+                        .frame(width: 56, height: 52)
                         .contentShape(Rectangle())
-                        .padding(.trailing, 6)
+                        .padding(.trailing, 4)
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged { value in
