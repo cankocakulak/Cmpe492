@@ -290,14 +290,101 @@ final class TaskEntitySchemaTests: XCTestCase {
         XCTAssertEqual(completedTasks.count, 2, "Should find 2 completed tasks")
     }
     
+    // MARK: - Index Verification Tests
+    
+    func testIdAttributeIsIndexed() throws {
+        let taskEntity = NSEntityDescription.entity(forEntityName: "Task", in: context)!
+        let idAttribute = taskEntity.attributesByName["id"]
+        
+        XCTAssertTrue(idAttribute?.isIndexed ?? false,
+                     "id attribute should be indexed for sync lookups")
+    }
+    
+    func testScheduledDateAttributeIsIndexed() throws {
+        let taskEntity = NSEntityDescription.entity(forEntityName: "Task", in: context)!
+        let scheduledDateAttribute = taskEntity.attributesByName["scheduledDate"]
+        
+        XCTAssertTrue(scheduledDateAttribute?.isIndexed ?? false,
+                     "scheduledDate attribute should be indexed for view filtering")
+    }
+    
+    func testCreatedAtAttributeIsIndexed() throws {
+        let taskEntity = NSEntityDescription.entity(forEntityName: "Task", in: context)!
+        let createdAtAttribute = taskEntity.attributesByName["createdAt"]
+        
+        XCTAssertTrue(createdAtAttribute?.isIndexed ?? false,
+                     "createdAt attribute should be indexed for sorting")
+    }
+    
+    func testCompletedAtAttributeIsIndexed() throws {
+        let taskEntity = NSEntityDescription.entity(forEntityName: "Task", in: context)!
+        let completedAtAttribute = taskEntity.attributesByName["completedAt"]
+        
+        XCTAssertTrue(completedAtAttribute?.isIndexed ?? false,
+                     "completedAt attribute should be indexed for analytics queries")
+    }
+    
+    // MARK: - Data Validation Tests
+    
+    func testUniqueConstraintOnId() throws {
+        // Create first task with specific UUID
+        let sharedUUID = UUID()
+        
+        let task1 = Task(context: context)
+        task1.id = sharedUUID
+        task1.text = "First Task"
+        task1.state = "notStarted"
+        task1.createdAt = Date()
+        task1.updatedAt = Date()
+        task1.sortOrder = 0
+        
+        try context.save()
+        
+        // Attempt to create second task with same UUID
+        let task2 = Task(context: context)
+        task2.id = sharedUUID
+        task2.text = "Second Task"
+        task2.state = "notStarted"
+        task2.createdAt = Date()
+        task2.updatedAt = Date()
+        task2.sortOrder = 1
+        
+        // Save should fail due to unique constraint
+        XCTAssertThrowsError(try context.save()) { error in
+            XCTAssertTrue(error is NSError, "Should throw NSError for constraint violation")
+        }
+    }
+    
+    func testSortOrderDefaultValueIsApplied() throws {
+        // Create task without explicitly setting sortOrder
+        let task = Task(context: context)
+        task.id = UUID()
+        task.text = "Task with default sortOrder"
+        task.state = "notStarted"
+        task.createdAt = Date()
+        task.updatedAt = Date()
+        // Intentionally NOT setting sortOrder
+        
+        // Note: Core Data default values are applied on insert
+        // We need to verify the default is actually used
+        XCTAssertEqual(task.sortOrder, 0, "sortOrder should default to 0")
+    }
+    
     // MARK: - CloudKit Readiness Tests
     
     func testModelHasCloudKitEnabled() throws {
         // Verify the model is configured for CloudKit sync
         let model = persistenceController.container.managedObjectModel
-        
-        // Check if model has CloudKit configuration
-        // Note: This is a basic check - full CloudKit setup happens in Phase 3
         XCTAssertNotNil(model, "Managed object model should exist")
+        
+        // Verify model has entities
+        XCTAssertFalse(model.entities.isEmpty, "Model should have at least one entity")
+        
+        // Verify Task entity exists in model
+        let taskEntity = model.entitiesByName["Task"]
+        XCTAssertNotNil(taskEntity, "Task entity should exist in model")
+        
+        // Note: usedWithCloudKit flag is set in XML but not directly accessible via NSManagedObjectModel API
+        // Full CloudKit setup verification happens in Phase 3
     }
 }
