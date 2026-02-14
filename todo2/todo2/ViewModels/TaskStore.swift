@@ -10,6 +10,17 @@ final class TaskStore: ObservableObject {
         let action: () -> Void
     }
 
+    struct DeletedSnapshot {
+        let id: UUID
+        let text: String
+        let createdAt: Date
+        let updatedAt: Date
+        let scheduledDate: Date?
+        let completedAt: Date?
+        let stateRaw: Int16
+        let sortOrder: Double
+    }
+
     @Published var errorMessage: String?
     @Published var undoAction: UndoAction?
 
@@ -60,8 +71,18 @@ final class TaskStore: ObservableObject {
     }
 
     func delete(_ task: Task) {
+        guard let snapshot = snapshot(for: task) else {
+            context.delete(task)
+            saveContext()
+            return
+        }
+
         context.delete(task)
         saveContext()
+
+        registerUndo(label: "Deleted") { [weak self] in
+            self?.restore(snapshot: snapshot)
+        }
     }
 
     func reschedule(_ task: Task, to scheduledDate: Date?, dayStart: Date, label: String) {
@@ -90,12 +111,34 @@ final class TaskStore: ObservableObject {
 
     func reorder(tasks: [Task], from sourceIndex: Int, to destinationIndex: Int) {
         guard sourceIndex != destinationIndex else { return }
+        let previousOrders = tasks.map { ($0.objectID, $0.sortOrder) }
         var reordered = tasks
         let task = reordered.remove(at: sourceIndex)
         let insertIndex = destinationIndex > sourceIndex ? destinationIndex - 1 : destinationIndex
         reordered.insert(task, at: insertIndex)
 
-        let previousOrders = reordered.map { ($0.objectID, $0.sortOrder) }
+        for (index, task) in reordered.enumerated() {
+            task.sortOrder = Double(index)
+            task.touchUpdatedAt()
+        }
+        saveContext()
+
+        registerUndo(label: "Reorder") { [weak self] in
+            guard let self else { return }
+            for (objectID, order) in previousOrders {
+                if let task = try? self.context.existingObject(with: objectID) as? Task {
+                    task.sortOrder = order
+                    task.touchUpdatedAt()
+                }
+            }
+            self.saveContext()
+        }
+    }
+
+    func reorder(tasks: [Task], fromOffsets: IndexSet, toOffset: Int) {
+        let previousOrders = tasks.map { ($0.objectID, $0.sortOrder) }
+        var reordered = tasks
+        reordered = move(reordered, fromOffsets: fromOffsets, toOffset: toOffset)
 
         for (index, task) in reordered.enumerated() {
             task.sortOrder = Double(index)
@@ -187,5 +230,47 @@ final class TaskStore: ObservableObject {
         } catch {
             errorMessage = "Save failed: \((error as NSError).localizedDescription)"
         }
+    }
+
+    private func snapshot(for task: Task) -> DeletedSnapshot? {
+        guard let id = task.id,
+              let text = task.text,
+              let createdAt = task.createdAt,
+              let updatedAt = task.updatedAt else { return nil }
+
+        return DeletedSnapshot(
+            id: id,
+            text: text,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            scheduledDate: task.scheduledDate,
+            completedAt: task.completedAt,
+            stateRaw: task.stateRaw,
+            sortOrder: task.sortOrder
+        )
+    }
+
+    private func restore(snapshot: DeletedSnapshot) {
+        let task = Task(context: context)
+        task.id = snapshot.id
+        task.text = snapshot.text
+        task.createdAt = snapshot.createdAt
+        task.updatedAt = snapshot.updatedAt
+        task.scheduledDate = snapshot.scheduledDate
+        task.completedAt = snapshot.completedAt
+        task.stateRaw = snapshot.stateRaw
+        task.sortOrder = snapshot.sortOrder
+        saveContext()
+    }
+
+    private func move(_ items: [Task], fromOffsets: IndexSet, toOffset: Int) -> [Task] {
+        var result = items
+        let moving = fromOffsets.map { result[$0] }
+        for index in fromOffsets.sorted(by: >) {
+            result.remove(at: index)
+        }
+        let destination = min(toOffset, result.count)
+        result.insert(contentsOf: moving, at: destination)
+        return result
     }
 }

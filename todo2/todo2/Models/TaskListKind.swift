@@ -29,6 +29,28 @@ enum TaskListKind: Int, CaseIterable, Identifiable {
         }
     }
 
+    var next: TaskListKind {
+        switch self {
+        case .inbox:
+            return .today
+        case .today:
+            return .upcoming
+        case .upcoming:
+            return .upcoming
+        }
+    }
+
+    var previous: TaskListKind {
+        switch self {
+        case .inbox:
+            return .inbox
+        case .today:
+            return .inbox
+        case .upcoming:
+            return .today
+        }
+    }
+
     func defaultScheduledDate(using calendar: Calendar = .current, dayStart: Date) -> Date? {
         switch self {
         case .inbox:

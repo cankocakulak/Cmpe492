@@ -37,7 +37,7 @@ enum ExportService {
                 scheduledDate: task.scheduledDate,
                 completedAt: task.completedAt,
                 state: task.state.displayName,
-                sortOrder: task.sortOrder ?? 0
+                sortOrder: task.sortOrder
             )
         }
 

@@ -1,5 +1,4 @@
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct TaskListView: View {
     let kind: TaskListKind
@@ -7,6 +6,7 @@ struct TaskListView: View {
     let dayStart: Date
 
     @Binding var draggingTask: Task?
+    let isReordering: Bool
 
     @EnvironmentObject private var store: TaskStore
 
@@ -23,42 +23,19 @@ struct TaskListView: View {
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                         .onDrag {
+                            guard !isReordering else { return NSItemProvider() }
                             draggingTask = task
                             let identifier = task.id?.uuidString ?? UUID().uuidString
                             return NSItemProvider(object: identifier as NSString)
                         }
-                        .onDrop(of: [UTType.text], delegate: TaskDropDelegate(
-                            target: task,
-                            tasks: tasks,
-                            draggingTask: $draggingTask,
-                            store: store
-                        ))
+                }
+                .onMove { indices, newOffset in
+                    store.reorder(tasks: tasks, fromOffsets: indices, toOffset: newOffset)
                 }
             }
             .listStyle(.plain)
             .background(Color.clear)
+            .environment(\.editMode, .constant(isReordering ? .active : .inactive))
         }
-    }
-}
-
-private struct TaskDropDelegate: DropDelegate {
-    let target: Task
-    let tasks: [Task]
-    @Binding var draggingTask: Task?
-    let store: TaskStore
-
-    func dropEntered(info: DropInfo) {
-        guard let draggingTask else { return }
-        guard draggingTask != target else { return }
-        guard draggingTask.state == target.state else { return }
-        guard let fromIndex = tasks.firstIndex(of: draggingTask),
-              let toIndex = tasks.firstIndex(of: target) else { return }
-
-        store.reorder(tasks: tasks, from: fromIndex, to: toIndex)
-    }
-
-    func performDrop(info: DropInfo) -> Bool {
-        draggingTask = nil
-        return true
     }
 }

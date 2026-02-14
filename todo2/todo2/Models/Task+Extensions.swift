@@ -2,7 +2,7 @@ import CoreData
 
 extension Task {
     var state: TaskState {
-        get { TaskState(rawValue: stateRaw ?? TaskState.notStarted.rawValue) ?? .notStarted }
+        get { TaskState(rawValue: stateRaw) ?? .notStarted }
         set { stateRaw = newValue.rawValue }
     }
 

@@ -16,6 +16,7 @@ struct MainTaskView: View {
     @State private var selectedKind: TaskListKind = .today
     @State private var inputText = ""
     @State private var draggingTask: Task?
+    @State private var isReordering = false
     @FocusState private var inputFocused: Bool
 
     var body: some View {
@@ -26,59 +27,74 @@ struct MainTaskView: View {
         let upcomingTasks = TaskFilter.tasks(for: .upcoming, from: allTasks, dayStart: dayStart)
 
         VStack(spacing: 12) {
-            SegmentedHeader(
-                selection: $selectedKind,
-                draggingTask: $draggingTask,
-                dayStart: dayStart
-            )
-            .padding(.top, 12)
-
-            TaskInputBar(
-                text: $inputText,
-                isFocused: _inputFocused,
-                placeholder: "Add a task"
-            ) {
-                store.createTask(
-                    text: inputText,
-                    scheduledDate: selectedKind.defaultScheduledDate(dayStart: dayStart),
+            VStack(spacing: 12) {
+                SegmentedHeader(
+                    selection: $selectedKind,
+                    draggingTask: $draggingTask,
                     dayStart: dayStart
                 )
-                inputText = ""
-                inputFocused = true
+                .padding(.top, 12)
+
+                HStack {
+                    Spacer()
+                    Button(isReordering ? "Done" : "Reorder") {
+                        isReordering.toggle()
+                    }
+                    .font(.subheadline.weight(.semibold))
+                }
+                .padding(.horizontal, 16)
+
+                TaskInputBar(
+                    text: $inputText,
+                    isFocused: _inputFocused,
+                    placeholder: "Add a task"
+                ) {
+                    store.createTask(
+                        text: inputText,
+                        scheduledDate: selectedKind.defaultScheduledDate(dayStart: dayStart),
+                        dayStart: dayStart
+                    )
+                    inputText = ""
+                    inputFocused = true
+                }
+                .padding(.horizontal, 16)
+
+                if selectedKind == .today {
+                    TodaySummary(tasks: todayTasks)
+                        .padding(.horizontal, 16)
+                }
             }
-            .padding(.horizontal, 16)
+            .contentShape(Rectangle())
+            .gesture(horizontalSwipeGesture())
 
-            if selectedKind == .today {
-                TodaySummary(tasks: todayTasks)
-                    .padding(.horizontal, 16)
+            Group {
+                switch selectedKind {
+                case .inbox:
+                    TaskListView(
+                        kind: .inbox,
+                        tasks: inboxTasks,
+                        dayStart: dayStart,
+                        draggingTask: $draggingTask,
+                        isReordering: isReordering
+                    )
+                case .today:
+                    TaskListView(
+                        kind: .today,
+                        tasks: todayTasks,
+                        dayStart: dayStart,
+                        draggingTask: $draggingTask,
+                        isReordering: isReordering
+                    )
+                case .upcoming:
+                    TaskListView(
+                        kind: .upcoming,
+                        tasks: upcomingTasks,
+                        dayStart: dayStart,
+                        draggingTask: $draggingTask,
+                        isReordering: isReordering
+                    )
+                }
             }
-
-            TabView(selection: $selectedKind) {
-                TaskListView(
-                    kind: .inbox,
-                    tasks: inboxTasks,
-                    dayStart: dayStart,
-                    draggingTask: $draggingTask
-                )
-                .tag(TaskListKind.inbox)
-
-                TaskListView(
-                    kind: .today,
-                    tasks: todayTasks,
-                    dayStart: dayStart,
-                    draggingTask: $draggingTask
-                )
-                .tag(TaskListKind.today)
-
-                TaskListView(
-                    kind: .upcoming,
-                    tasks: upcomingTasks,
-                    dayStart: dayStart,
-                    draggingTask: $draggingTask
-                )
-                .tag(TaskListKind.upcoming)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -101,6 +117,20 @@ struct MainTaskView: View {
                 inputFocused = true
             }
         }
+    }
+
+    private func horizontalSwipeGesture() -> some Gesture {
+        DragGesture(minimumDistance: 24)
+            .onEnded { value in
+                let horizontal = value.translation.width
+                let vertical = value.translation.height
+                guard abs(horizontal) > abs(vertical) else { return }
+                if horizontal < -60 {
+                    selectedKind = selectedKind.next
+                } else if horizontal > 60 {
+                    selectedKind = selectedKind.previous
+                }
+            }
     }
 }
 

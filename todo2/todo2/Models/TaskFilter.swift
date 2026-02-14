@@ -27,10 +27,8 @@ struct TaskFilter {
             if lhs.state.sortRank != rhs.state.sortRank {
                 return lhs.state.sortRank < rhs.state.sortRank
             }
-            let lhsOrder = lhs.sortOrder ?? 0
-            let rhsOrder = rhs.sortOrder ?? 0
-            if lhsOrder != rhsOrder {
-                return lhsOrder < rhsOrder
+            if lhs.sortOrder != rhs.sortOrder {
+                return lhs.sortOrder < rhs.sortOrder
             }
             let lhsCreated = lhs.createdAt ?? .distantPast
             let rhsCreated = rhs.createdAt ?? .distantPast
