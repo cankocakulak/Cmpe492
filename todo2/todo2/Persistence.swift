@@ -14,9 +14,17 @@ struct PersistenceController {
     static let preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
-        for _ in 0..<10 {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+        for index in 0..<6 {
+            let task = Task(context: viewContext)
+            let now = Date()
+            task.id = UUID()
+            task.text = "Sample Task \(index + 1)"
+            task.createdAt = now
+            task.updatedAt = now
+            task.state = index % 3 == 0 ? .completed : (index % 2 == 0 ? .active : .notStarted)
+            task.completedAt = task.state == .completed ? now : nil
+            task.scheduledDate = index < 2 ? nil : Calendar.current.startOfDay(for: now)
+            task.sortOrder = Double(index)
         }
         do {
             try viewContext.save()
@@ -36,6 +44,10 @@ struct PersistenceController {
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }
+        if let description = container.persistentStoreDescriptions.first {
+            description.setOption(true as NSNumber, forKey: NSMigratePersistentStoresAutomaticallyOption)
+            description.setOption(true as NSNumber, forKey: NSInferMappingModelAutomaticallyOption)
+        }
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
                 // Replace this implementation with code to handle the error appropriately.
@@ -53,5 +65,6 @@ struct PersistenceController {
             }
         })
         container.viewContext.automaticallyMergesChangesFromParent = true
+        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
     }
 }
