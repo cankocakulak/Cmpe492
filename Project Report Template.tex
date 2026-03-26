@@ -1,0 +1,860 @@
+\documentclass[a4paper,12pt]{report}
+\usepackage{styles/fbe_tez}
+\usepackage[utf8x]{inputenc} % To use Unicode (e.g. Turkish) characters
+\renewcommand{\labelenumi}{(\roman{enumi})}
+\usepackage{amsmath, amsthm, amssymb}
+ % Some extra symbols
+\usepackage[bottom]{footmisc}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{longtable}
+\graphicspath{{figures/}} % Graphics will be here
+
+\usepackage{multirow}
+\usepackage{subfigure}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\makeatletter
+\@ifundefined{endabstract}{%
+  \newenvironment{abstract}{%
+    \chapter*{Abstract}%
+  }{%
+  }%
+}{}%
+\makeatother
+
+\begin{document}
+
+% Title Page
+\title{CMPE 492 \\ An Empirical Study on Agentic Coding Workflows}
+\author{
+Murat Can Kocakulak - 2021400330 \\ \\
+Advisor: \\ 
+Advisor Name Surname
+}
+\date{}
+\maketitle{}
+\pagenumbering{roman}
+
+\begin{abstract}
+This project presents an empirical study on agentic coding workflows for AI-assisted software development. The study investigates how structured, multi-stage workflows can improve the reliability, controllability, and efficiency of large language model (LLM)-based development systems.
+
+Different workflow paradigms, including BMAD-style processes, custom workflow designs, and orchestrated multi-agent systems, are explored and compared. A modular framework is implemented using a structured repository (ViberMode) and an orchestration platform (OpenClaw), where specialized agents are assigned roles such as requirement definition, design generation, and implementation.
+
+The experimental results show that workflows incorporating intermediate artifacts, such as product requirement documents and user stories, significantly improve output consistency and quality. While product-to-spec pipelines perform reliably, spec-to-code workflows demonstrate both potential and limitations, requiring partial human oversight in complex scenarios.
+
+The findings highlight that the effectiveness of AI-assisted development systems depends more on workflow design and orchestration than on model capability alone. The study concludes that structured agentic workflows are a promising direction for scalable and semi-autonomous software development, particularly when combined with iterative refinement and controlled execution strategies.
+\end{abstract}
+
+\tableofcontents
+
+\chapter{INTRODUCTION}
+\pagenumbering{arabic}
+
+\section{Broad Impact}
+The rapid advancement of large language models (LLMs) has significantly transformed the landscape of software development. Traditional development processes, which rely heavily on manual coding and iterative debugging, are increasingly being augmented by AI-assisted tools capable of generating, modifying, and reasoning about code. However, the emerging paradigm extends beyond simple code generation; it introduces a shift towards structured, workflow-driven development processes in which LLMs operate as components within larger, orchestrated systems.
+
+In this context, agentic coding systems represent a new direction in software engineering, where multiple agents, each responsible for specific tasks such as planning, specification, implementation, and evaluation, collaborate within predefined workflows. These systems enable the decomposition of complex development tasks into smaller, manageable steps, allowing for increased modularity, reusability, and scalability. As a result, development workflows can evolve from ad-hoc interactions with AI tools into systematic pipelines that resemble traditional software engineering processes, but with significantly higher levels of automation.
+
+The impact of such systems is substantial in terms of developer productivity and iteration speed. By automating repetitive and structured tasks---such as generating requirement documents, translating specifications into implementation steps, and producing initial code drafts---developers can focus more on high-level design decisions and critical reasoning. Moreover, these workflows have the potential to scale beyond individual developers, enabling organization-wide automation, such as repository-wide transformations and background code generation processes integrated with version control systems.
+
+This project focuses not merely on utilizing AI-assisted coding tools, but on analyzing and improving the workflows that govern their usage. By studying and experimenting with different agentic coding frameworks and orchestration strategies, the work aims to contribute to a deeper understanding of how structured AI-driven development pipelines can be designed, evaluated, and optimized. In doing so, it highlights the importance of workflow engineering as a central component in the future of AI-assisted software development.
+\section{Ethical Considerations}
+The integration of large language models into software development workflows introduces several ethical and practical concerns that must be carefully considered. One of the primary risks is the generation of incorrect or misleading code, commonly referred to as hallucination. LLMs can produce syntactically correct yet semantically flawed outputs with high confidence, which may lead developers to trust and integrate faulty implementations, especially within multi-step automated workflows where errors can propagate across stages.
+
+Another significant concern is the potential for over-reliance on automated systems. As agentic coding workflows become more capable, developers may be inclined to delegate increasingly complex tasks without sufficient verification. This can reduce critical engagement with the codebase and create a false sense of reliability, particularly in systems that appear to function correctly at a surface level but contain hidden logical issues.
+
+The loss of human control in fully autonomous workflows is also an important consideration. In scenarios where multiple agents operate sequentially to transform high-level specifications into executable code, maintaining transparency and oversight becomes challenging. This project's experimental observations highlight that, despite advances in automation, human intervention is often still required to monitor progress, validate outputs, and correct unintended behaviors.
+
+Additionally, questions of accountability and maintainability arise when code is generated by AI systems. Determining responsibility for errors, understanding generated code, and ensuring long-term maintainability become more complex as the level of automation increases. Developers must remain capable of interpreting and verifying AI-generated outputs to ensure system reliability.
+
+Finally, while this project does not directly process sensitive user data, the broader use of AI-assisted development tools may involve sharing proprietary code or project context with external APIs. This raises concerns related to data privacy and security, emphasizing the need for careful handling of inputs and outputs when integrating such tools into real-world development environments.
+
+\chapter{PROJECT DEFINITION AND PLANNING}
+\section{Project Definition}
+This project investigates the design, implementation, and evaluation of structured agentic coding workflows for AI-assisted software development. While recent advancements in large language models have enabled powerful code generation capabilities, their effective integration into real-world development processes remains an open challenge. In particular, the lack of structured workflows and reliable orchestration mechanisms often leads to inconsistent outputs, limited controllability, and the need for frequent human intervention.
+
+The primary objective of this project is to explore how software development tasks can be organized into well-defined, multi-stage workflows in which different agents are responsible for specific roles, such as ideation, requirement specification, design, and implementation. By structuring the development process into sequential and modular steps, the project aims to improve the reliability, traceability, and scalability of AI-assisted coding systems.
+
+To achieve this, several workflow patterns inspired by existing approaches---such as spec-driven development, test-driven development, and multi-agent collaboration---are analyzed and adapted into a unified framework. These workflows are implemented and experimented with using platforms such as OpenClaw and a custom repository structure (ViberMode), where agent roles, artifacts, and task transitions are explicitly defined.
+
+The scope of this project includes the design of agent roles, the definition of workflow pipelines (e.g., product-to-spec and spec-to-code), and the experimental evaluation of these workflows in practice. It focuses on understanding the behavior, limitations, and potential of agentic coding systems rather than delivering a fully autonomous or production-ready development solution. As such, the project emphasizes workflow engineering and empirical observation over end-user application development.
+\section{Project Planning}
+The project follows an iterative and exploratory development process centered around the evaluation and refinement of agentic coding workflows. Rather than adhering to a strictly predefined timeline, the work is structured as a sequence of experiments in which different workflow designs, tools, and orchestration strategies are tested, compared, and improved based on observed outcomes.
+
+In the initial phase, various existing approaches to AI-assisted software development were explored, including full and partial BMAD (Build-Measure-Analyze-Develop) workflows, as well as alternative paradigms such as Ralph-style iterative prompting and structured multi-agent systems. These experiments aimed to understand how different levels of structure and automation affect the quality, reliability, and efficiency of generated outputs.
+
+A key focus of the planning process was the role of intermediate artifacts, such as product requirement documents (PRDs) and user stories. Through experimentation, it was observed that workflows incorporating well-defined intermediate documentation produced more consistent and coherent results. In particular, the explicit generation of PRDs and user stories helped bridge the gap between high-level ideas and implementation, improving both traceability and output quality.
+
+The project also incorporates lightweight evaluation metrics to compare different workflows. These include execution time, estimated cost (based on API usage), and qualitative assessment of output quality. For example, recent experiments using structured workflows within OpenClaw demonstrated end-to-end execution times of approximately 30--40 minutes, with estimated costs in the range of 10--20 USD and moderate output quality. These observations inform subsequent refinements of workflow design and orchestration strategies.
+
+Overall, the planning approach emphasizes continuous iteration, empirical observation, and incremental improvement. Insights gained from each experimental cycle are used to refine workflow definitions, adjust agent roles, and improve the overall structure of the system.
+\subsection{Project Time and Resource Estimation}
+The project does not follow a traditional fixed timeline, but instead relies on iterative experimentation with different agentic coding workflows. As a result, time and resource estimation is based on empirical observations obtained from multiple workflow executions rather than predefined planning.
+
+Several workflow configurations were tested to understand their efficiency and resource requirements. These include full BMAD workflows, partial BMAD workflows, and a custom-designed workflow implemented within the ViberMode repository. Additionally, orchestrated executions using OpenClaw were evaluated to assess the performance of more automated, end-to-end pipelines.
+
+The experimental results indicate that more structured and comprehensive workflows tend to require longer execution times and higher computational costs. For instance, full BMAD workflows typically required approximately 7--8 hours of interaction and resulted in an estimated cost of 40--50 USD, while partial BMAD workflows reduced both time (3--4 hours) and cost (20--25 USD) at the expense of reduced structure. In contrast, more optimized workflows, such as those implemented in ViberMode, achieved shorter execution times (approximately 2--3 hours) with an estimated cost of around 50 USD, reflecting the use of a more capable but costlier model (Opus 4.6).
+
+More recent experiments using OpenClaw-based orchestration demonstrated significantly faster execution, with end-to-end workflow completion times of approximately 30--40 minutes and estimated costs in the range of 10--20 USD. These results suggest that automation and improved orchestration can substantially reduce both time and resource consumption, although they may introduce challenges in maintaining output consistency and control.
+
+The experiments were conducted using a combination of different language models and development tools. BMAD-based workflows utilized Cursor and Codex as development environments with Sonnet 5 and Codex 5.2 as the underlying models. ViberMode workflows were executed within Cursor using Opus 4.6, while OpenClaw-orchestrated workflows employed Kimi 2.5 and GPT 5.4. Output quality across different workflows was evaluated qualitatively and was generally observed to be in the moderate range, highlighting the trade-off between speed, cost, model selection, and reliability.
+
+Overall, these observations provide practical insights into the resource requirements of agentic coding systems and inform the design of more efficient and balanced workflows.
+
+\begin{table}[h!]
+\caption[Workflow comparison]{Comparison of workflow configurations in terms of execution time, estimated cost, tools, and models used.}
+\begin{center}
+\small
+\begin{tabular}{|l|c|c|c|c|} \hline
+\textbf{Workflow} & \textbf{Duration} & \textbf{Est. Cost} & \textbf{IDE / Platform} & \textbf{Models Used} \\\hline
+Full BMAD & 7--8 hours & 40--50 USD & Cursor, Codex & Sonnet 5, Codex 5.2 \\\hline
+Partial BMAD & 3--4 hours & 20--25 USD & Cursor, Codex & Sonnet 5, Codex 5.2 \\\hline
+ViberMode & 2--3 hours & $\sim$50 USD & Cursor & Opus 4.6 \\\hline
+OpenClaw & $\sim$30 min & $<$20 USD & OpenClaw & Kimi 2.5, GPT 5.4 \\\hline
+\end{tabular}
+\label{table:workflowComparison}
+\end{center}
+\end{table}
+
+As shown in Table~\ref{table:workflowComparison}, more automated and orchestrated workflows significantly reduce both execution time and cost, while maintaining comparable output quality.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=14pt,
+    width=0.85\textwidth,
+    height=6.5cm,
+    ylabel={Estimated Cost (USD)},
+    xlabel={Workflow Configuration},
+    symbolic x coords={Full BMAD, Partial BMAD, ViberMode, OpenClaw},
+    xtick=data,
+    ymin=0, ymax=60,
+    nodes near coords,
+    every node near coord/.append style={font=\small},
+    legend style={at={(0.98,0.95)}, anchor=north east, font=\small},
+    x tick label style={font=\small},
+]
+\addplot[fill=blue!60] coordinates {(Full BMAD,45) (Partial BMAD,22.5) (ViberMode,50) (OpenClaw,20)};
+\end{axis}
+\end{tikzpicture}
+\caption{Estimated cost comparison across different workflow configurations.}
+\label{fig:costComparison}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    xbar,
+    bar width=14pt,
+    width=0.85\textwidth,
+    height=6cm,
+    xlabel={Execution Time (minutes)},
+    symbolic y coords={OpenClaw, ViberMode, Partial BMAD, Full BMAD},
+    ytick=data,
+    xmin=0, xmax=520,
+    nodes near coords,
+    every node near coord/.append style={font=\small},
+    y tick label style={font=\small},
+]
+\addplot[fill=teal!50] coordinates {(35,OpenClaw) (150,ViberMode) (210,Partial BMAD) (450,Full BMAD)};
+\end{axis}
+\end{tikzpicture}
+\caption{Execution time comparison across workflow configurations (in minutes). OpenClaw orchestration reduces execution time by over 90\% compared to full BMAD workflows.}
+\label{fig:timeComparison}
+\end{figure}
+
+\subsection{Success Criteria}
+The success of this project is not defined by achieving fully autonomous software development, but rather by the ability to design, implement, and evaluate structured agentic coding workflows that improve the organization and effectiveness of AI-assisted development processes.
+
+One of the primary success criteria is the successful execution of multi-stage workflows that transform high-level ideas into structured intermediate artifacts and, in some cases, into implementation outputs. This includes the reliable generation of components such as product requirement documents (PRDs), user stories, and other specification artifacts that form the backbone of spec-driven development processes.
+
+Another important criterion is the ability to orchestrate multiple agents within a defined workflow. This involves ensuring that tasks can be passed between agents in a consistent and traceable manner, and that each stage produces outputs that are usable by subsequent stages. The effectiveness of this orchestration is evaluated based on continuity, coherence, and the reduction of manual intervention.
+
+The project also aims to provide meaningful insights into the trade-offs inherent in agentic coding systems. These include the balance between execution time, computational cost, output quality, and level of automation. A successful outcome involves identifying which workflow configurations offer the most practical balance for real-world use cases.
+
+Finally, the project is considered successful if it contributes to a clearer understanding of the limitations of current systems, particularly in areas such as full autonomy, error propagation, and the need for human oversight. Rather than eliminating human involvement entirely, the goal is to move towards controlled and structured semi-automation, where human intervention is minimized but still effectively integrated into the workflow.
+\subsection{Risk Analysis}
+The development and evaluation of agentic coding workflows introduce several technical and operational risks, many of which have been directly observed during the experimental phases of this project.
+
+One of the primary risks is workflow instability, particularly in multi-stage pipelines such as spec-to-code transformations. While certain workflows can execute sequentially, maintaining consistency across all stages remains challenging. Errors or ambiguities introduced in earlier stages can propagate through the pipeline, leading to degraded output quality and requiring manual intervention to correct or guide the process.
+
+Another significant risk is the inherent unreliability of large language models. Despite their strong generative capabilities, LLMs may produce incorrect, incomplete, or inconsistent outputs. This becomes especially problematic in agentic systems where multiple dependent steps are involved, as small inaccuracies can accumulate and affect the overall workflow outcome.
+
+The complexity of orchestration is also a key challenge. The use of an orchestrator agent that manages multiple sub-agents introduces additional layers of coordination and control. In practice, managing agent spawning, task delegation, and state tracking can become difficult, reducing transparency and making debugging more complex. This complexity may limit the scalability and robustness of the system.
+
+A related risk is the difficulty of achieving full autonomy. Although the workflows are designed to operate with minimal human intervention, experimental results indicate that continuous monitoring and occasional manual input are often required. This highlights the gap between theoretical fully autonomous systems and their practical implementation.
+
+Resource consumption is another important consideration. As workflows become more comprehensive and involve multiple stages and agents, both execution time and computational cost increase. Without careful optimization, this can limit the practicality of deploying such systems in real-world scenarios.
+
+Finally, there is a risk associated with platform dependency. The current implementation relies heavily on specific tools and frameworks, such as OpenClaw. However, ongoing observations suggest that certain limitations may stem from platform-specific constraints rather than the workflows themselves. This introduces uncertainty regarding the most suitable environment for implementing agentic coding systems.
+
+To mitigate these risks, the project adopts an iterative refinement approach. Workflows are continuously adjusted based on observed failures, agent roles are restructured for better clarity and control, and alternative orchestration mechanisms (such as more explicit control flows) are explored. Additionally, maintaining human oversight at critical stages is considered essential to ensure reliability and correctness.
+
+\begin{table}[h!]
+\caption[Risk analysis]{Summary of identified risks, their likelihood, impact, and mitigation strategies.}
+\begin{center}
+\small
+\begin{tabular}{|l|c|c|p{5cm}|} \hline
+\textbf{Risk} & \textbf{Likelihood} & \textbf{Impact} & \textbf{Mitigation} \\\hline
+Workflow instability & High & High & Iterative refinement; human checkpoints between stages \\\hline
+LLM output unreliability & High & Medium & Structured prompts; intermediate artifact validation \\\hline
+Orchestration complexity & Medium & High & Explicit control flow definitions; modular agent design \\\hline
+Difficulty achieving full autonomy & High & Medium & Semi-automated workflows with guided human oversight \\\hline
+Resource overconsumption & Medium & Medium & Workflow optimization; cost monitoring per execution \\\hline
+Platform dependency & Medium & Low & Modular architecture; abstracted agent interfaces \\\hline
+\end{tabular}
+\label{table:riskAnalysis}
+\end{center}
+\end{table}
+
+Table~\ref{table:riskAnalysis} summarizes the key risks identified during the project along with their assessed likelihood, impact, and corresponding mitigation strategies.
+
+\subsection{Team Work (if applicable)}
+This project is conducted individually. However, it follows a structured and iterative development process that involves the integration of multiple tools, frameworks, and experimental workflows.
+
+Throughout the project, different agentic coding approaches, platforms, and orchestration strategies have been explored and evaluated. This required managing multiple components simultaneously, including workflow design, agent role definition, and experimental execution across different environments.
+
+Although no formal team collaboration is involved, the project inherently reflects a multi-component system perspective, where different agents and tools interact in a coordinated manner. In this sense, the workflow itself can be seen as a form of structured collaboration between human oversight and automated agents.
+
+\chapter{RELATED WORK}
+The rapid evolution of large language models~\cite{llm} has led to the emergence of various approaches to AI-assisted software development, ranging from interactive coding assistants to fully automated agentic systems. These approaches differ significantly in terms of control, structure, and level of autonomy.
+
+One of the most widely adopted categories is interactive coding assistants, such as GitHub Copilot and Cursor~\cite{copilot,cursor}. These systems operate within integrated development environments (IDEs) and assist developers by generating code snippets, suggesting completions, and providing contextual recommendations. While they significantly improve developer productivity, they rely heavily on continuous human interaction and do not inherently enforce structured development workflows.
+
+In contrast, agentic coding systems aim to automate larger portions of the development process by decomposing tasks into multiple stages and delegating them to specialized agents. Frameworks such as OpenClaw~\cite{openclaw} and emerging swarm-based approaches explore multi-agent orchestration, where agents collaborate to perform tasks such as planning, specification, implementation, and validation. These systems move beyond single-step code generation and attempt to execute complex workflows with minimal human intervention. However, they often face challenges related to reliability, coordination, and control.
+
+Another important line of work involves structured or spec-driven development methodologies. Approaches inspired by BMAD (Build-Measure-Analyze-Develop) and similar frameworks emphasize the generation of intermediate artifacts, such as product requirement documents (PRDs) and user stories, before implementation. These structured workflows aim to improve traceability and coherence by explicitly linking high-level ideas to implementation steps. Recent experiments in this project confirm that the presence of well-defined intermediate artifacts significantly enhances output consistency and quality.
+
+Industrial applications further highlight the importance of workflow design. For example, systems such as Spotify's internal ``Honk'' platform~\cite{spotifyhonk} demonstrate how large-scale code transformations can be managed through distributed pipelines that generate and validate pull requests across multiple repositories. In such systems, the primary innovation lies not only in the use of AI models, but in the orchestration infrastructure that enables reliable execution, validation, and integration of generated changes.
+
+This project positions itself at the intersection of these approaches. Rather than focusing solely on interactive assistance or full automation, it explores structured agentic workflows that aim to balance controllability and automation. By combining elements of spec-driven development, multi-agent orchestration, and empirical evaluation, the project contributes to a deeper understanding of how AI-assisted software development systems can be designed and improved.
+
+\chapter{METHODOLOGY}
+This project adopts a workflow-centered approach to AI-assisted software development, in which large language models are integrated into structured, multi-stage pipelines rather than being used as isolated code generation tools. The methodology focuses on designing, implementing, and evaluating agentic coding workflows that decompose complex development tasks into smaller, well-defined steps.
+
+At the core of the system is a spec-driven pipeline that transforms high-level ideas into implementation artifacts through a sequence of intermediate stages. These stages typically include idea generation, product requirement definition, design specification, user story creation, and implementation. By explicitly structuring the development process into these steps, the system aims to improve traceability, coherence, and overall output quality. The workflows explored in this project include variations such as product-to-spec, product-to-code, and spec-to-code pipelines.
+
+A key component of the methodology is the definition of specialized agent roles. Each agent is responsible for a specific task within the workflow and produces structured outputs that are consumed by subsequent agents. For example, roles such as brainstormer, product requirement designer, UX designer, and user story generator are used to construct intermediate artifacts, while implementation-oriented agents focus on translating specifications into executable code. To ensure consistency across stages, agents are designed to follow a unified output format, enabling smoother transitions between workflow steps.
+
+As illustrated in Figure~\ref{fig:agentTaxonomy}, the agents are organized into two categories: product pipeline agents, which operate sequentially to transform ideas into implementation, and iterate toolkit agents, which can be invoked independently at any stage.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[
+    cat/.style={rectangle, rounded corners=5pt, draw=black!70, minimum width=5.8cm, minimum height=0.8cm, align=center, font=\small\bfseries},
+    agent/.style={rectangle, rounded corners=3pt, draw=black!50, minimum width=5.2cm, minimum height=0.6cm, align=center, font=\footnotesize},
+    arr/.style={-{Stealth[length=4pt]}, thick, draw=black!40}
+]
+\node[cat, fill=blue!20] (prod) at (-4, 0) {Product Pipeline (Sequential)};
+\node[agent, fill=blue!8] (a1) at (-4, -0.8) {Analyzer --- discover project structure};
+\node[agent, fill=blue!8] (a2) at (-4, -1.5) {Brainstormer --- rapid ideation};
+\node[agent, fill=blue!8] (a3) at (-4, -2.2) {PRD --- product requirements + tech stack};
+\node[agent, fill=blue!8] (a4) at (-4, -2.9) {UX Designer --- flows, visual direction};
+\node[agent, fill=blue!8] (a5) at (-4, -3.6) {User Stories --- sprint-ready stories};
+\node[agent, fill=blue!8] (a6) at (-4, -4.3) {Task Planner --- stories to tasks.json};
+\node[agent, fill=blue!8] (a7) at (-4, -5.0) {Implementation Runner --- execute tasks};
+
+\draw[arr] (a1.south) -- (a2.north);
+\draw[arr] (a2.south) -- (a3.north);
+\draw[arr] (a3.south) -- (a4.north);
+\draw[arr] (a4.south) -- (a5.north);
+\draw[arr] (a5.south) -- (a6.north);
+\draw[arr] (a6.south) -- (a7.north);
+
+\node[cat, fill=orange!20] (iter) at (4, 0) {Iterate Toolkit (Standalone)};
+\node[agent, fill=orange!8] (b1) at (4, -1.2) {Scout --- ``What is this code?''};
+\node[agent, fill=orange!8] (b2) at (4, -2.1) {Planner --- ``How to fix/build?''};
+\node[agent, fill=orange!8] (b3) at (4, -3.0) {Reviewer --- ``Is this good?''};
+\node[agent, fill=orange!8] (b4) at (4, -3.9) {UX Tweaker --- ``How should it look?''};
+\end{tikzpicture}
+\caption{Agent taxonomy: product pipeline agents (left) execute sequentially from idea to implementation, while iterate toolkit agents (right) can be invoked independently at any point.}
+\label{fig:agentTaxonomy}
+\end{figure}
+
+These agent roles and workflows are organized within a custom repository structure (ViberMode), where agents are grouped, standardized, and aligned with specific workflow definitions. The repository serves as a modular framework for defining and experimenting with different agent configurations, artifact formats, and workflow sequences. This allows for systematic comparison of alternative approaches and facilitates iterative refinement.
+
+To execute these workflows, an orchestration layer is implemented using OpenClaw. A dedicated orchestrator agent is responsible for interpreting workflow definitions, managing task sequencing, and delegating responsibilities to appropriate sub-agents. The orchestration process leverages explicit control flow definitions (e.g., prose-based workflow scripts), which provide a structured way to define execution steps, input parameters, and transitions between agents.
+
+During execution, the orchestrator reads the workflow, initializes the required agents, and coordinates the generation of artifacts across multiple stages. Outputs are progressively accumulated and passed between agents, forming a pipeline that mimics traditional software development processes. In certain cases, the system is capable of performing actions such as creating branches in a target repository and generating documentation artifacts automatically.
+
+The methodology is inherently iterative. Observations from each workflow execution---such as output quality, execution time, and failure points---are used to refine agent definitions, adjust workflow structures, and improve orchestration strategies. This iterative loop enables continuous improvement and provides practical insights into the strengths and limitations of agentic coding systems.
+
+The modular nature of these agents enables a variety of workflow compositions beyond the canonical pipeline. Table~\ref{table:workflowVariants} summarizes common workflow shortcuts and their typical use cases.
+
+\begin{table}[h!]
+\caption[Workflow variants]{Common workflow compositions and their use cases.}
+\begin{center}
+\small
+\begin{tabular}{|l|l|} \hline
+\textbf{Scenario} & \textbf{Workflow Composition} \\\hline
+New project (full) & Brainstormer $\rightarrow$ PRD $\rightarrow$ UX $\rightarrow$ Stories $\rightarrow$ Implement \\\hline
+Existing codebase feature & Analyzer $\rightarrow$ product-to-spec $\rightarrow$ spec-to-code \\\hline
+Spec-only work & product-to-spec \\\hline
+Implementation-only & spec-to-code \\\hline
+Bug fix & Planner $\rightarrow$ Implement \\\hline
+UX improvement & UX Tweaker $\rightarrow$ Implement \\\hline
+Exploration & Brainstormer $\rightarrow$ PRD \\\hline
+Design-first & UX Designer $\rightarrow$ User Stories \\\hline
+\end{tabular}
+\label{table:workflowVariants}
+\end{center}
+\end{table}
+
+Overall, the methodology emphasizes structured workflow design, role-based agent decomposition, and orchestration-driven execution, with the goal of moving towards more reliable and controllable AI-assisted software development processes.
+
+\chapter{REQUIREMENTS SPECIFICATION}
+This section defines the functional and non-functional requirements of the proposed agentic coding system. The system is designed to support structured, workflow-driven software development processes in which multiple agents collaborate to transform high-level inputs into intermediate artifacts and implementation outputs.
+
+\textbf{Functional Requirements}
+
+The system must be capable of executing multi-stage workflows that decompose software development tasks into sequential steps. It should support workflows such as product-to-spec, product-to-code, and spec-to-code, where each stage produces structured outputs that are passed to subsequent stages.
+
+The system must allow the definition and execution of specialized agent roles. Each agent should be able to receive inputs, process them according to its role, and generate outputs in a consistent and structured format. These outputs may include product requirement documents (PRDs), design specifications, user stories, and code artifacts.
+
+The system should support orchestration of agents through a central controller that manages task sequencing, agent invocation, and data flow between stages. It must also be capable of integrating with external repositories to perform actions such as generating documentation or creating branches as part of the workflow.
+
+\textbf{Non-Functional Requirements}
+
+The system should maintain reasonable execution time and computational cost, even for multi-stage workflows involving multiple agents. It should aim to produce outputs with consistent quality and coherence across stages, minimizing error propagation.
+
+Reliability and controllability are also critical requirements. The system should allow for human oversight and intervention when necessary, particularly in stages where errors may significantly affect downstream outputs. Transparency of intermediate artifacts is important to ensure traceability and ease of debugging.
+
+\textbf{Use Case Scenario}
+
+A typical use case involves a developer providing a high-level idea or project description as input. The system then initiates a workflow that progressively transforms this input into structured artifacts, such as a product requirement document and user stories, followed by partial or complete implementation outputs. Throughout this process, agents collaborate in a coordinated manner, and the developer may monitor or guide the workflow as needed.
+
+\chapter{DESIGN}
+
+\section{Information Structure}
+The system is structured around a set of intermediate artifacts that represent different stages of the software development process. Rather than treating development as a single-step transformation from input to code, the system decomposes the process into multiple layers of structured information.
+
+At the highest level, the system takes a high-level idea or project description as input. This input is progressively transformed into a series of intermediate artifacts, including product requirement documents (PRDs), design specifications, and user stories. Each artifact represents a more refined and structured version of the original idea, enabling a gradual transition from abstract concepts to concrete implementation details.
+
+In addition to development artifacts, the system also maintains workflow definitions and agent configurations. Workflow definitions specify the sequence of steps to be executed, while agent configurations define the roles, responsibilities, and output formats of individual agents. These components together form the backbone of the system's information structure.
+
+This layered representation of information improves traceability and consistency by ensuring that each stage of the development process is explicitly documented. It also allows intermediate outputs to be inspected, modified, or reused, which is particularly important in scenarios where full automation is not reliable and human intervention is required.
+
+\section{Information Flow}
+The information flow in the system follows a structured, pipeline-based architecture in which data is progressively transformed through multiple stages. Rather than a direct input-to-output mapping, the system operates as a sequence of coordinated steps, each handled by specialized agents.
+
+The process begins with a high-level input, typically in the form of a project idea or description provided by the user. This input is passed to the orchestration layer, where a predefined workflow is selected and initialized. The workflow defines the sequence of agents to be executed and the expected outputs at each stage.
+
+Once the workflow is initiated, the orchestrator agent manages the execution by delegating tasks to individual agents. Each agent processes its input and produces a structured output, which is then passed to the next agent in the pipeline. For example, an initial idea may first be transformed into a product requirement document, which is then used to generate design specifications, followed by user stories and implementation steps.
+
+Throughout this process, intermediate artifacts serve as both outputs and inputs, ensuring continuity and traceability across stages. The orchestrator maintains control over the sequence and monitors the progression of the workflow, allowing for adjustments or human intervention when necessary.
+
+The final outputs of the system may include structured documentation, partially or fully generated code, or repository-level actions such as branch creation and file generation. This flow enables a controlled and modular transformation from abstract input to concrete implementation, while preserving the ability to inspect and refine intermediate steps.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[
+    node distance=0.6cm,
+    stage/.style={
+        rectangle, rounded corners=4pt, draw=black!70, fill=blue!15,
+        minimum width=2.4cm, minimum height=0.9cm, align=center, font=\small
+    },
+    arr/.style={-{Stealth[length=5pt]}, thick, draw=black!60}
+]
+\node[stage] (idea) {Project\\Idea};
+\node[stage, right=of idea] (brain) {Brainstorm\\Agent};
+\node[stage, right=of brain] (prd) {PRD\\Agent};
+\node[stage, right=of prd] (design) {Design\\Agent};
+\node[stage, right=of design] (story) {User Story\\Agent};
+\node[stage, right=of story] (impl) {Implementation\\Agent};
+
+\draw[arr] (idea) -- (brain);
+\draw[arr] (brain) -- (prd);
+\draw[arr] (prd) -- (design);
+\draw[arr] (design) -- (story);
+\draw[arr] (story) -- (impl);
+
+\node[below=0.3cm of idea, font=\scriptsize\itshape, text=black!60] {Input};
+\node[below=0.3cm of brain, font=\scriptsize\itshape, text=black!60] {Ideas};
+\node[below=0.3cm of prd, font=\scriptsize\itshape, text=black!60] {PRD};
+\node[below=0.3cm of design, font=\scriptsize\itshape, text=black!60] {Spec};
+\node[below=0.3cm of story, font=\scriptsize\itshape, text=black!60] {Stories};
+\node[below=0.3cm of impl, font=\scriptsize\itshape, text=black!60] {Code};
+\end{tikzpicture}
+\caption{Information flow through the agentic workflow pipeline, showing the progressive transformation of a project idea into implementation artifacts.}
+\label{fig:infoFlow}
+\end{figure}
+
+\section{System Design}
+The system is designed as a modular, multi-layered architecture that separates workflow definition, agent execution, and orchestration responsibilities. This design enables flexibility, extensibility, and clearer control over complex AI-assisted development processes.
+
+At the highest level, the system includes an input layer where users provide high-level project descriptions or ideas. These inputs serve as the starting point for workflow execution and are passed to the orchestration layer.
+
+The workflow layer defines the structure of the development process. It consists of predefined pipelines, such as product-to-spec and spec-to-code workflows, which determine the sequence of steps and the agents involved in each stage. These workflows are explicitly defined and can be modified or extended to support different development scenarios.
+
+The agent layer contains specialized agents, each responsible for a specific task within the workflow. These include agents for idea generation, requirement definition, design specification, user story creation, and implementation. Each agent operates independently but adheres to a standardized input-output format, ensuring compatibility with other agents in the system.
+
+The orchestration layer is responsible for coordinating the overall execution of workflows. In this project, this functionality is implemented using OpenClaw, where a dedicated orchestrator agent interprets workflow definitions and manages task delegation. The orchestrator initializes agents, controls execution order, and ensures that outputs from one stage are correctly passed to the next. Explicit control flow definitions, such as prose-based scripts, are used to define and manage these interactions.
+
+Finally, the execution layer handles interactions with external systems, including large language model APIs and version control systems. This layer is responsible for generating outputs such as documentation artifacts and code, as well as performing actions like repository updates and branch creation.
+
+Overall, the system is designed to be modular and extensible, allowing new workflows, agents, and execution strategies to be integrated with minimal changes to the overall architecture. This modularity is essential for experimenting with different configurations and improving the reliability and performance of agentic coding systems.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[
+    layer/.style={
+        rectangle, draw=black!70, rounded corners=3pt,
+        minimum width=11cm, minimum height=1.1cm, align=center, font=\small
+    },
+    arr/.style={-{Stealth[length=5pt]}, thick, draw=black!50}
+]
+\node[layer, fill=orange!20]  (input)  at (0, 0)   {\textbf{Input Layer} -- Project ideas, descriptions, parameters};
+\node[layer, fill=yellow!20]  (wf)     at (0,-1.6)  {\textbf{Workflow Layer} -- Pipeline definitions (product-to-spec, spec-to-code)};
+\node[layer, fill=green!15]   (agent)  at (0,-3.2)  {\textbf{Agent Layer} -- Brainstormer, PRD Agent, Design Agent, Story Agent, Implementer};
+\node[layer, fill=blue!15]    (orch)   at (0,-4.8)  {\textbf{Orchestration Layer} -- OpenClaw orchestrator, task sequencing, state management};
+\node[layer, fill=red!12]     (exec)   at (0,-6.4)  {\textbf{Execution Layer} -- LLM APIs, version control, repository operations};
+
+\draw[arr] (input)  -- (wf);
+\draw[arr] (wf)     -- (agent);
+\draw[arr] (agent)  -- (orch);
+\draw[arr] (orch)   -- (exec);
+\end{tikzpicture}
+\caption{Layered system architecture showing the separation of input handling, workflow definition, agent execution, orchestration, and external system interaction.}
+\label{fig:sysArch}
+\end{figure}
+
+\section{User Interface Design (if applicable)}
+The system does not rely on a traditional graphical user interface, as its primary focus is on workflow execution and agent orchestration rather than end-user interaction. Instead, interaction with the system is achieved through structured inputs, command-based triggers, and configuration-driven workflows.
+
+Users typically initiate workflows by providing a high-level project description along with relevant parameters, such as workflow type, target repository, or contextual constraints. These inputs are supplied through command-line interfaces or prompt-based interactions with the orchestration system.
+
+The outputs of the system are primarily in the form of generated artifacts, including documentation (e.g., product requirement documents, user stories) and code, as well as repository-level actions such as branch creation and file updates. These outputs are directly integrated into the development environment rather than being presented through a dedicated user interface.
+
+This minimal interface design reflects the system's emphasis on automation and integration with existing developer workflows. By reducing reliance on complex UI components, the system allows developers to focus on controlling and refining workflows rather than interacting with a separate application layer.
+
+\chapter{IMPLEMENTATION AND TESTING}
+\section{Implementation}
+The implementation of the system focuses on constructing and executing structured agentic coding workflows using a combination of a custom repository framework and an orchestration platform.
+
+A central component of the implementation is the ViberMode repository, which is used to define and organize agent roles, workflows, and artifact structures. Within this repository, agent definitions are standardized and grouped under a consistent directory structure, enabling better alignment between different stages of the workflow. Each agent is designed to produce outputs in a structured format, allowing seamless transitions between steps such as idea generation, requirement specification, and implementation planning.
+
+The directory structure of the ViberMode repository is shown in Figure~\ref{fig:repoStructure}, illustrating how agent roles, platform integrations, and workflow definitions are organized.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\ttfamily\footnotesize, anchor=west},
+    comment/.style={font=\rmfamily\scriptsize\itshape, text=black!60},
+]
+\node (root) at (0,0) {ViberMode/};
+\node (agents) at (0.4,-0.5) {.agents/};
+\node (roles) at (1.0,-1.0) {roles/};
+\node (product) at (1.6,-1.5) {product/};
+\node[comment] at (4.2,-1.5) {--- sequential pipeline agents};
+\node (iterate) at (1.6,-2.0) {iterate/};
+\node[comment] at (4.2,-2.0) {--- standalone toolkit agents};
+\node (skills) at (1.0,-2.5) {skills/};
+\node[comment] at (4.2,-2.5) {--- Codex Skills (SKILL.md per agent)};
+\node (workflows) at (1.0,-3.0) {workflows/};
+\node[comment] at (4.2,-3.0) {--- multi-agent workflow definitions};
+\node (cursor) at (0.4,-3.7) {.cursor/};
+\node (commands) at (1.0,-4.2) {commands/};
+\node[comment] at (4.2,-4.2) {--- slash commands (/prd, /scout, ...)};
+\node (rules) at (1.0,-4.7) {rules/};
+\node[comment] at (4.2,-4.7) {--- always-on context (viber-mode.mdc)};
+\node (openclaw) at (0.4,-5.4) {openclaw/};
+\node[comment] at (4.2,-5.4) {--- orchestration configurations};
+\node (agentsmd) at (0.4,-5.9) {AGENTS.md};
+\node[comment] at (4.2,-5.9) {--- agent index for external tools};
+
+\draw[gray!50] (root.south west) ++(0.15,0) -- ++(0,-5.7);
+\draw[gray!50] (agents.south west) ++(0.15,0) -- ++(0,-2.3);
+\draw[gray!50] (roles.south west) ++(0.15,0) -- ++(0,-0.8);
+\draw[gray!50] (cursor.south west) ++(0.15,0) -- ++(0,-0.8);
+\end{tikzpicture}
+\caption{ViberMode repository structure showing the organization of agent definitions, platform integrations, and workflow configurations.}
+\label{fig:repoStructure}
+\end{figure}
+
+Several workflow types are implemented, including product-to-spec, product-to-code, and spec-to-code pipelines. These workflows define the sequence of agent executions and the expected outputs at each stage. The workflows are designed to be modular, allowing individual components to be reused or modified independently.
+
+To execute these workflows, the system integrates with OpenClaw, where an orchestrator agent is responsible for managing the overall process. The orchestrator reads workflow definitions, initializes the required agents, and delegates tasks accordingly. It also handles the sequencing of operations and ensures that outputs from one stage are correctly passed as inputs to the next.
+
+Execution control is implemented using explicit workflow definitions in the form of prose-based scripts. These scripts define the flow of execution, including parameters such as project description, target repository, and contextual constraints. This approach enables more deterministic control over the workflow compared to purely prompt-based interaction.
+
+In practical experiments, the system was able to execute complete product-to-spec workflows, including the automatic generation of artifacts such as brainstorming outputs, analysis documents, product requirement documents, UX designs, and user stories. Additionally, repository-level actions such as branch creation and file generation were successfully performed in target repositories.
+
+While spec-to-code workflows were also executed, they required more frequent human intervention and monitoring, indicating current limitations in achieving fully autonomous implementation. These observations informed further refinements in workflow design and orchestration strategies.
+\section{Testing}
+The system is evaluated through scenario-based and comparative testing, focusing on the performance and reliability of different agentic coding workflows. Rather than traditional unit testing, the evaluation emphasizes end-to-end workflow execution and the quality of generated outputs.
+
+Multiple workflow configurations are tested, including full BMAD workflows, partial BMAD approaches, custom workflows implemented in the ViberMode repository, and orchestrated executions using OpenClaw. These workflows are applied to similar development scenarios to enable comparative analysis.
+
+The test scenarios are primarily based on greenfield application ideas related to student productivity, such as study tracking systems, to-do applications, and streak-based habit trackers. These projects were chosen deliberately: they represent well-scoped, self-contained applications with clearly definable requirements, moderate feature sets, and limited external dependencies. Using a consistent domain and complexity level across experiments allows for more meaningful comparisons between different workflow configurations.
+
+It is important to note that all experiments were conducted on relatively simple, greenfield projects. The characteristics of these test scenarios are summarized in Table~\ref{table:testScope}.
+
+\begin{table}[h!]
+\caption[Test scenario scope]{Characteristics of test scenarios used in experimental evaluation.}
+\begin{center}
+\small
+\begin{tabular}{|l|l|} \hline
+\textbf{Characteristic} & \textbf{Description} \\\hline
+Project type & Greenfield (built from scratch) \\\hline
+Domain & Student productivity (to-do, streak, study tracking) \\\hline
+Complexity & Low to moderate \\\hline
+External dependencies & Minimal (no complex APIs or integrations) \\\hline
+Codebase size & Small ($<$5K lines of code) \\\hline
+Architecture & Single-platform, standard patterns \\\hline
+\end{tabular}
+\label{table:testScope}
+\end{center}
+\end{table}
+
+This scope was chosen to isolate the effects of workflow design from the confounding factors introduced by project complexity. However, it also means that the observed results may not directly generalize to larger, more complex, or legacy codebases, where challenges such as dependency management, cross-module coordination, and architectural constraints could significantly affect workflow performance.
+
+The evaluation is based on a combination of quantitative and qualitative metrics. Quantitative measures include execution time and estimated computational cost, while qualitative assessment focuses on the coherence, completeness, and usability of generated artifacts such as product requirement documents, user stories, and implementation outputs.
+
+In addition to performance metrics, particular attention is given to failure modes and limitations. Observations indicate that while structured workflows improve output consistency, certain pipelines---especially spec-to-code transformations---remain sensitive to errors and often require human intervention. Issues such as incomplete outputs, loss of context between stages, and inconsistent interpretations of intermediate artifacts are identified during testing.
+
+The source code and artifacts produced during this project are publicly available across multiple repositories. The ViberMode framework, which defines agent roles, workflows, and skill structures, is available at \url{https://github.com/cankocakulak/ViberMode}. Experimental workflow outputs, including product-to-spec pipeline results generated via OpenClaw orchestration, can be found at \url{https://github.com/cankocakulak/openclaw-deneme}. The main project repository, containing BMAD-based experiments and application-level outputs, is hosted at \url{https://github.com/cankocakulak/Cmpe492}.
+
+Overall, the testing process provides practical insights into the strengths and weaknesses of different workflow designs. These findings are used to guide iterative improvements in workflow structure, agent configuration, and orchestration mechanisms.
+\section{Deployment}
+The system is not deployed as a traditional end-user application, but rather executed within a controlled development environment designed for experimentation and evaluation of agentic coding workflows.
+
+The implementation is primarily run locally, where the ViberMode repository defines agent roles, workflows, and artifact structures, and OpenClaw is used as the orchestration platform. Workflow execution is triggered through command-based interfaces and configuration-driven inputs, allowing flexible control over parameters such as project description, target repository, and workflow type.
+
+During execution, the system interacts with external services, including large language model APIs, to generate outputs. In certain scenarios, the system is also capable of performing repository-level operations, such as creating branches and generating files within target repositories. These actions simulate real-world development workflows without requiring a fully deployed production environment.
+
+This deployment approach allows for rapid experimentation and iterative refinement, as workflows can be modified and re-executed without the overhead of maintaining a full application infrastructure. It also enables closer observation of system behavior, which is essential for identifying limitations and improving orchestration strategies.
+
+Future work may involve transitioning parts of the system into more persistent or scalable environments, particularly if the workflows are to be integrated into real-world development pipelines or collaborative platforms.
+
+\chapter{RESULTS}
+The experimental results demonstrate that the effectiveness of AI-assisted software development systems depends heavily on workflow design, orchestration strategy, and the structure of intermediate artifacts, rather than solely on the capabilities of the underlying language models.
+
+Among the evaluated approaches, workflows implemented using OpenClaw, combined with explicit workflow definitions (prose-based scripts) and well-structured agent roles, produced the most consistent and efficient results. The use of an orchestrator agent to manage task sequencing and delegation significantly improved the coherence of multi-stage executions and reduced the need for manual coordination.
+
+The product-to-spec workflow emerged as one of the most reliable pipelines. In multiple experiments, the system was able to automatically generate structured artifacts such as brainstorming outputs, product requirement documents, UX designs, and user stories. These outputs were generally coherent and provided a strong foundation for subsequent stages of development.
+
+Spec-to-code workflows, while more challenging, also demonstrated promising results. In certain experiments involving multi-step tasks (e.g., tasks composed of approximately 10 sequential steps), the system was able to complete the workflow end-to-end and produce functional outputs. However, these executions required monitoring and occasional intervention to maintain consistency and correctness. This indicates that while full autonomy is not yet consistently achievable, the current approach is capable of handling complex tasks under guided conditions.
+
+A key insight from these experiments is that the primary determinant of system performance is not the choice of language model alone, but the design of the workflow and the quality of intermediate artifacts. Structured pipelines that enforce clear transitions between stages tend to produce more reliable results compared to loosely defined or purely prompt-based approaches.
+
+Another important observation is the trade-off between automation and control, visualized in Figure~\ref{fig:tradeoff}. Increasing the level of automation can reduce execution time and manual effort, but may also lead to reduced transparency and increased risk of errors. Conversely, incorporating human oversight at critical stages improves reliability but reduces the overall level of automation.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.75\textwidth,
+    height=7cm,
+    xlabel={Level of Automation},
+    ylabel={Reliability / Control},
+    xmin=0, xmax=10, ymin=0, ymax=10,
+    xtick={2,4,6,8},
+    xticklabels={Low, Medium, High, Full},
+    ytick={2,4,6,8},
+    yticklabels={Low, Medium, High, Very High},
+    grid=major,
+    grid style={dashed, gray!30},
+    every node near coord/.append style={font=\small},
+]
+\addplot[only marks, mark=*, mark size=4pt, fill=blue!60] coordinates {
+    (2, 8.5)
+    (4, 7)
+    (6, 5.5)
+    (8, 3)
+};
+\node[font=\footnotesize, anchor=south west] at (axis cs:2.2,8.5) {Full BMAD};
+\node[font=\footnotesize, anchor=south west] at (axis cs:4.2,7) {Partial BMAD};
+\node[font=\footnotesize, anchor=south west] at (axis cs:6.2,5.5) {ViberMode};
+\node[font=\footnotesize, anchor=south east] at (axis cs:7.8,3) {OpenClaw};
+
+\addplot[dashed, thick, red!60, domain=1:9, samples=50] {10.5 - 0.95*x};
+\end{axis}
+\end{tikzpicture}
+\caption{Trade-off between automation level and reliability/control across different workflow configurations. The dashed line illustrates the general inverse relationship observed experimentally.}
+\label{fig:tradeoff}
+\end{figure}
+
+The results also suggest that integrating external tools and more explicit execution mechanisms (such as ACP-based agents or code execution environments) could significantly improve the robustness of spec-to-code workflows. With further refinement in orchestration and execution layers, these systems have the potential to approach more fully autonomous software development.
+
+An important consideration when interpreting these results is the scope of the experimental scenarios. All experiments were conducted on greenfield, relatively simple projects---such as to-do applications, study trackers, and streak-based habit apps---with limited external dependencies and straightforward architectural requirements. While this controlled scope enabled meaningful comparisons between workflow configurations, it also introduces questions about generalizability.
+
+In particular, more complex projects involving large existing codebases, intricate dependency graphs, multi-service architectures, or domain-specific constraints may present additional challenges that were not encountered in the current experiments. For example, spec-to-code workflows might face greater difficulties when dealing with legacy code integration, complex state management, or cross-cutting concerns such as authentication and authorization. Similarly, the intermediate artifacts generated during product-to-spec workflows may require significantly more detail and precision when targeting complex systems, potentially increasing both execution time and the need for human oversight.
+
+Despite these limitations, the greenfield scope provides a useful baseline for understanding the fundamental capabilities and trade-offs of agentic coding workflows. The findings establish a foundation upon which future experiments with more complex scenarios can build.
+
+Overall, the findings highlight both the current capabilities and the future potential of agentic coding systems, emphasizing the importance of workflow engineering as a central factor in their success.
+
+\begin{table}[h!]
+\caption[Pipeline comparison]{Comparative evaluation of the two primary pipeline types across key performance dimensions.}
+\begin{center}
+\begin{tabular}{|l|c|c|} \hline
+\textbf{Dimension} & \textbf{Product-to-Spec} & \textbf{Spec-to-Code} \\\hline
+Reliability & High & Medium \\\hline
+Output Consistency & High & Medium--Low \\\hline
+Human Intervention & Minimal & Frequent \\\hline
+Avg. Execution Time & 15--20 min & 20--30 min \\\hline
+Error Propagation Risk & Low & High \\\hline
+Automation Level & High & Medium \\\hline
+\end{tabular}
+\label{table:pipelineComparison}
+\end{center}
+\end{table}
+
+As shown in Table~\ref{table:pipelineComparison}, the product-to-spec pipeline consistently outperforms spec-to-code in terms of reliability and automation level, while the latter remains more prone to error propagation and requires more frequent human oversight.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=18pt,
+    width=0.8\textwidth,
+    height=6.5cm,
+    ylabel={Score (1--5)},
+    symbolic x coords={Reliability, Consistency, Automation, Error Resilience},
+    xtick=data,
+    ymin=0, ymax=5.5,
+    legend style={at={(0.98,0.95)}, anchor=north east, font=\small},
+    x tick label style={font=\small},
+    nodes near coords,
+    every node near coord/.append style={font=\small},
+]
+\addplot[fill=green!50] coordinates {(Reliability,4.5) (Consistency,4.2) (Automation,4.0) (Error Resilience,4.0)};
+\addplot[fill=red!40] coordinates {(Reliability,2.8) (Consistency,2.5) (Automation,3.0) (Error Resilience,2.0)};
+\legend{Product-to-Spec, Spec-to-Code}
+\end{axis}
+\end{tikzpicture}
+\caption{Qualitative performance comparison between product-to-spec and spec-to-code pipelines across key evaluation dimensions (scored 1--5).}
+\label{fig:pipelineChart}
+\end{figure}
+
+\chapter{CONCLUSION}
+This project explored the design, implementation, and evaluation of agentic coding workflows for AI-assisted software development. Rather than focusing solely on code generation capabilities, the work emphasized the importance of structuring development processes into well-defined, multi-stage pipelines.
+
+One of the key outcomes of the project is the recognition that effective AI-assisted development is not primarily a model problem, but a workflow design problem. The introduction of structured pipelines---such as product-to-spec and spec-to-code---and the use of intermediate artifacts like product requirement documents and user stories significantly improved the consistency and usability of generated outputs. These findings highlight the importance of explicitly defining development stages and ensuring clear transitions between them.
+
+Another important contribution is the practical understanding of agent and skill design within such workflows. Defining specialized roles and aligning their outputs enabled more coherent multi-step execution, while the use of orchestration mechanisms allowed these roles to be coordinated in a systematic manner. This demonstrated that agent-based decomposition is a viable approach for managing complex software development tasks.
+
+The experimental results also revealed that while current systems are capable of handling structured workflows and multi-step tasks, achieving fully autonomous and reliable end-to-end implementation remains challenging. Human oversight is still required in critical stages, particularly in code generation and validation. However, the observed progress suggests that with improved orchestration strategies and better integration of execution environments, these limitations can be gradually overcome.
+
+It should also be acknowledged that the experimental scenarios in this project were limited to greenfield, low-to-moderate complexity projects. While this provided a controlled environment for comparing workflow configurations, it leaves open the question of how these workflows would perform on larger, more complex systems. Projects involving legacy codebases, multi-service architectures, complex dependency management, or domain-specific constraints may introduce additional challenges---such as increased error propagation, longer context windows, and the need for more granular human oversight---that could significantly alter the observed trade-offs. Extending the experimental scope to include such scenarios is therefore an important direction for future research.
+
+Looking forward, a potential direction for future work is the automation of these workflows in a continuous and scalable manner. One envisioned approach is to integrate agentic coding pipelines with scheduled execution mechanisms, such as cron-based systems, enabling regular and automated generation of new applications or features. This could allow the system to continuously explore new ideas, generate implementations, and refine outputs with minimal human intervention.
+
+Ultimately, this project demonstrates that the future of AI-assisted software development lies in the combination of structured workflows, agent-based systems, and iterative refinement. By focusing on workflow engineering and orchestration, it is possible to move towards more reliable, scalable, and autonomous development processes, particularly for greenfield coding tasks and exploratory software generation.
+
+\bibliographystyle{styles/fbe_tez_v11}
+\bibliography{references}
+
+\appendix	
+
+\chapter{VIBREMODE AGENT ROLE DEFINITION EXAMPLE}
+\label{app:agentDef}
+
+The following is the complete definition of the \textit{Brainstormer} agent from the ViberMode framework. This illustrates how agent roles are specified in a portable, tool-agnostic format.
+
+\begin{small}
+\begin{verbatim}
+# Brainstormer Agent
+
+> Rapid ideation. Takes a problem or idea, generates 
+  structured creative options.
+
+## Role
+
+You are a sharp, creative product thinker. You generate 
+ideas fast, organize them clearly, and always recommend 
+a direction. You are:
+
+- Divergent first, convergent second
+- Opinionated — you always pick a winner
+- Practical — no fantasy ideas that can't ship
+- Brief — no walls of text
+
+You do NOT design, specify, or implement. You open the 
+possibility space and narrow it down.
+
+## Input Contract
+
+| Input       | Type   | Required | Description              |
+|-------------|--------|----------|--------------------------|
+| topic       | string | yes      | Problem or idea          |
+| analysis    | path   | no       | Path to analysis artifact|
+| constraints | string | no       | Tech, time, budget       |
+| direction   | string | no       | Bias toward an angle     |
+
+## Output Contract
+
+### Analysis
+Two to three sentences max. What's the real problem here?
+
+### Ideas (aim for 5-8)
+For each idea:
+  - What: One-line description
+  - Why it works: One-line reasoning
+  - Risk: One-line concern
+  - Effort: Low / Medium / High
+
+### Recommendation
+Pick the top 1-2 ideas. Explain why in 2-3 sentences.
+
+### Handoff Contract
+  - Next Agent: prd
+  - Required Artifacts: docs/[project]/brainstorm.md
+  - Critical Inputs that must remain stable
+
+## Behavior Guidelines
+1. Speed over polish
+2. Quantity first, quality second
+3. Always recommend — never end with "it depends"
+4. Stay grounded — every idea must be buildable
+5. Challenge the premise — if the question is wrong, say so
+6. Prepare the handoff for the PRD step
+\end{verbatim}
+\end{small}
+
+Each agent in the ViberMode framework follows this same structure: a role description, input/output contracts, behavior guidelines, and a handoff contract specifying which agent should be invoked next. This standardized format ensures composability and portability across different execution environments.
+
+\chapter{OPENCLAW PIPELINE OUTPUT EXAMPLE}
+\label{app:openclawOutput}
+
+The following is an excerpt from a Product Requirements Document generated automatically by the OpenClaw-orchestrated product-to-spec pipeline. This artifact was produced without manual intervention as part of the ``Study Streak'' test scenario.
+
+\begin{small}
+\begin{verbatim}
+# PRD: Study Streak Mobile App
+
+## Problem
+Students struggle to build a daily study habit because 
+they lack a simple, motivating mobile workflow for 
+tracking study time and maintaining streaks.
+
+## Solution
+Expo / React Native mobile app; users can record daily 
+study time, set daily goals, build streaks based on goal 
+completion, and view basic progress statistics.
+
+## Requirements
+
+### Must Have (P0)
+- PR-001: Start and stop study sessions with accurate 
+  duration tracking
+- PR-002: Set a daily study-time goal and see real-time 
+  progress toward it
+- PR-003: Calculate and display streak based on completed 
+  goal days
+- PR-004: Show daily total and recent progress summary
+- PR-005: Keep the mobile experience simple and fast
+
+### Should Have (P1)
+- PR-101: Optional subject/label tagging for sessions
+- PR-102: Motivating messages when streak breaks
+- PR-103: Weekly total study time summary
+
+### Nice to Have (P2)
+- PR-201: Reminder notifications
+- PR-202: Streak/summary sharing
+
+## Tech Stack
+| Layer       | Choice                   | Reasoning            |
+|-------------|--------------------------|----------------------|
+| Frontend    | Expo / React Native      | Fast mobile MVP      |
+| State       | React state + store      | Simple for v1        |
+| Persistence | Local storage / offline  | No-signup onboarding |
+| Backend     | Deferred for v1          | Not needed initially |
+
+## Success Criteria
+- New user can start first session within 2 minutes
+- Daily goal status and streak visible at a glance
+- Streak calculation is deterministic and consistent
+- Recent progress interpretable without explanation
+
+## Handoff Contract
+  Next Agent: ux-designer
+  Required Artifacts: docs/product/prd.md
+  Recommended Artifacts: docs/product/brainstorm.md
+\end{verbatim}
+\end{small}
+
+This PRD was generated as part of a multi-stage pipeline where the orchestrator sequentially invoked brainstorming, PRD generation, UX design, and user story agents. The complete set of generated artifacts (brainstorm, PRD, UX specification, and user stories) is available at \url{https://github.com/cankocakulak/openclaw-deneme}.
+
+\chapter{BMAD PIPELINE OUTPUT EXAMPLE}
+\label{app:bmadOutput}
+
+The following is an excerpt from the Product Requirements Document generated using the full BMAD workflow within the Cmpe492 repository. Unlike the OpenClaw output, this artifact was produced through an interactive, multi-session process using Cursor and Codex.
+
+\begin{small}
+\begin{verbatim}
+# Product Requirements Document - Cmpe492
+
+Author: Mcan
+Date: 2026-02-11
+Classification:
+  projectType: mobile_app
+  domain: general
+  complexity: low-medium
+  projectContext: greenfield
+
+## Success Criteria
+
+### User Success
+
+Primary Success Indicator: Sustained Daily Use Without 
+Abandonment
+
+Continuous use for 3+ months without falling into the 
+"death spiral" (accumulation -> overwhelm -> abandonment) 
+that kills traditional to-do apps.
+
+Week 1 Validation:
+- Task capture feels effortless (under 3 seconds)
+- No psychological friction before opening app
+- Daily use happens naturally
+
+Month 1 Validation:
+- 30+ consecutive days of active use (habit formed)
+- Notes app usage for tasks drops significantly
+- Core interactions feel intuitive and fast
+
+Month 3+ Validation (Critical Success Milestone):
+- Sustained use after 90+ days
+- Notes app fully displaced for task management
+- Can skip days and return without guilt
+- System survives life interruptions
+\end{verbatim}
+\end{small}
+
+The full BMAD pipeline produced a comprehensive set of artifacts: a brainstorming session document, a product brief, a detailed PRD (689 lines), an architecture decision document, a UX design specification, an epics breakdown, and 51 individual implementation story files. These artifacts are available at \url{https://github.com/cankocakulak/Cmpe492}.
+
+Compared to the OpenClaw-generated PRD (Appendix~\ref{app:openclawOutput}), the BMAD output is notably more detailed and structured, reflecting the longer execution time and higher cost of the full BMAD workflow. However, both outputs successfully capture the core requirements and provide a usable foundation for subsequent development stages.
+
+\chapter{PROJECT REPOSITORIES}
+\label{app:repos}
+
+Table~\ref{table:repos} provides a summary of all repositories associated with this project, including their purpose and relevant content.
+
+\begin{table}[h!]
+\caption[Project repositories]{Summary of project repositories and their contents.}
+\begin{center}
+\small
+\begin{tabular}{|p{3cm}|p{4cm}|p{5.5cm}|} \hline
+\textbf{Repository} & \textbf{Purpose} & \textbf{Key Contents} \\\hline
+ViberMode\footnote{\url{https://github.com/cankocakulak/ViberMode}} & Agent and workflow framework & 11 agent role definitions, 3 workflow definitions, Cursor slash commands, Codex Skills export \\\hline
+openclaw-deneme\footnote{\url{https://github.com/cankocakulak/openclaw-deneme}} & OpenClaw orchestration experiments & Generated brainstorm, PRD, UX spec, and user stories from automated pipeline execution \\\hline
+Cmpe492\footnote{\url{https://github.com/cankocakulak/Cmpe492}} & Main project repository & BMAD framework, generated planning artifacts (PRD, epics, architecture, UX, 51 stories), Swift iOS application code, unit tests \\\hline
+\end{tabular}
+\label{table:repos}
+\end{center}
+\end{table}
+
+\end{document}
